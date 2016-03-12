@@ -101,6 +101,22 @@ optiondisplay=0;
 " value="隐藏所有按钮"/> 
 
 <script language="javascript" src="data.js"></script>
+<script type="text/javascript" src="geolocator.js"></script>
+<script type="text/javascript">
+    function onGeoSuccess(location) {
+        document.getElementById('phy').value=location.coords.latitude;
+        document.getElementById('lamda').value=location.coords.longitude;
+    }
+    //The callback function executed when the location could not be fetched.
+    function onGeoError(error) {
+        console.log(error);
+    }
+    window.onload = function () {
+        //geolocator.locateByIP(onGeoSuccess, onGeoError, 2, 'map-canvas');
+        var html5Options = { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 };
+        geolocator.locate(onGeoSuccess, onGeoError, true, html5Options, 'map-canvas');
+    };
+</script>
 <script language="javascript" src="solar.js"></script>
 <script language="javascript" src="star.js"></script>
 <script language="javascript" src="page.js"></script>
