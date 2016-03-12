@@ -1,0 +1,18 @@
+<script type="text/javascript" src="geolocator.js"></script>
+<script type="text/javascript">
+    //The callback function executed when the location is fetched successfully.
+    function onGeoSuccess(location) {
+        alert(location.coords.latitude);
+        alert(location.coords.longitude);
+    }
+    //The callback function executed when the location could not be fetched.
+    function onGeoError(error) {
+        console.log(error);
+    }
+
+    window.onload = function () {
+        //geolocator.locateByIP(onGeoSuccess, onGeoError, 2, 'map-canvas');
+        var html5Options = { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 };
+        geolocator.locate(onGeoSuccess, onGeoError, true, html5Options, 'map-canvas');
+    };
+</script> 
