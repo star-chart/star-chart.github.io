@@ -1,0 +1,109 @@
+﻿<html lang="zh">
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+
+<table>
+<td>
+<canvas id="myCanvas" width="800" height="800" onmousedown="move1();" onmousemove="move2();" onmouseup="move3();move4();" onmouseout="move3()" onmousewheel="move5()" >
+Your browser does not support the canvas element.
+</canvas>
+</td>
+</table>
+
+<div  id="option1">
+
+<table>
+
+<input type="submit" name="submit" onclick="now();" value="当前" style="width: 85px; height: 60px;" />
+<input type="submit" name="submit" id="change" onclick="projection();" value="地平仪" style="width: 85px; height: 60px;" />
+<input type="submit" name="submit" id="live" onclick="live();" value="实时方位" style="width: 85px; height: 60px;" />
+<input type="button" name="submit" onclick="randomchart();" value="随机"  style="width: 85px; height: 60px;" /> 
+<input type="submit" name="submit" onclick="change1();" value="地平网格" style="width: 85px; height: 60px;" />
+<input type="submit" name="submit" onclick="change2();" value="赤道网格" style="width: 85px; height: 60px;" />
+—
+<input type="button" name="submit" onclick="move6(5);" value="+"  style="width: 85px; height: 60px;" /> 
+<input type="button" name="submit" onclick="move6(2);" value="↑"  style="width: 85px; height: 60px;" /> 
+<input type="button" name="submit" onclick="move6(6);" value="-"  style="width: 85px; height: 60px;" /> 
+
+<br/>
+<input type="submit" name="submit" onclick="change5();" value="星座连线" style="width: 85px; height: 60px;" />
+<input type="submit" name="submit" onclick="change6();" value="星座名称" style="width: 85px; height: 60px;" />
+<input type="submit" name="submit" onclick="change7();" value="行星" style="width: 85px; height: 60px;" />
+<input type="submit" name="submit" onclick="change8();" value="星名" style="width: 85px; height: 60px;" />
+<input type="submit" name="submit" onclick="change3();" value="黄道" style="width: 85px; height: 60px;" />
+<input type="submit" name="submit" onclick="change4();" value="方位" style="width: 85px; height: 60px;" />
+—
+<input type="button" name="submit" onclick="move6(1);" value="←"  style="width: 85px; height: 60px;" /> 
+<input type="button" name="submit" onclick="move6(4);" value="↓"  style="width: 85px; height: 60px;" /> 
+<input type="button" name="submit" onclick="move6(3);" value="→"  style="width: 85px; height: 60px;" />
+
+
+
+<br/>
+
+<input type="text" name="y" id="year" value=2016 onchange="load_data();begin();" style="width:40px;" />年 
+<input type="text" name="m" id="month" value=2 onchange="load_data();begin();"  style="width:20px;" />月 
+<input type="text" name="d" id="day" value=16 onchange="load_data();begin();"  style="width:20px;" />日 
+<input type="text" name="h" id="ho" value=12 onchange="load_data();begin();"  style="width:20px;" />时 
+<input type="text" name="m" id="mi" value=0 onchange="load_data();begin();"  style="width:20px;" />分 
+<input type="text" name="s" id="s" value=0 onchange="load_data();begin();"  style="width:20px;" />秒 
+
+经度:<input type="text" name="s" id="lamda" value=115.7131 onchange="load_data();begin();" style="width:80px;" />
+纬度:<input type="text" name="s" id="phy" value=36.85 onchange="load_data();begin();" style="width:80px;" />
+<br/>
+
+赤经:<input type="text" name="s" id="RA" value=6 onchange="load_data();begin();"  style="width:40px;" />
+赤纬:<input type="text" name="s" id="Dec" value=30 onchange="load_data();begin();"  style="width:40px;" />
+方位:<input type="text" name="s" id="A" value=180 onchange="load_data();begin();"  style="width:40px;" />
+高度:<input type="text" name="s" id="h" value=30 onchange="load_data();begin();"  style="width:40px;" />
+视角:<input type="text" name="s" id="fov" value=45 onchange="load_data();begin();"  style="width:30px;" />
+颜色模式：<input type="button" name="submit" id="changecolor" onclick="changecolor()" value="大气"/>（点击更改）
+<br/>
+
+绝对大小:<input type="text" name="s" id="ss1" value=1 onchange="load_data();begin();" style="width:20px;" />
+相对大小:<input type="text" name="s" id="ss2" value=4 onchange="load_data();begin();" style="width:20px;" />
+星图宽度:<input type="text" name="s" id="sizex" value=800 onchange="load_data();begin();" style="width:40px;" />
+星图高度:<input type="text" name="s" id="sizey" value=800 onchange="load_data();begin();" style="width:40px;" />
+FPS：<input type="text" name="s" id="fps" value=0 style="width:40px;" />
+<br/>
+
+电脑上可以用鼠标拖动星图，点击恒星查看中英星名与星等；<br/>
+手机上点击“实时方位”，将手机指向对应天区，即可查看该方向星空，再点一次切换回正常模式；<br/>
+点击随机可以随即生成一片空白星图，可以用来练习认星哦~<br/>
+
+恒星位置亮度数据来自hip星表官方网站，截取亮度前10000恒星；<br/>
+恒星颜色数据来自stellarium；<br/>
+行星，太阳以及月亮位置算法，黄赤交角算法来自许剑伟先生的《寿星天文历》；<br/>
+中文星名数据来自刘春滨先生整理的来自伊世同《中西对照恒星图表1950.0(星表分册)》的stellarium星名汉化包；<br/>
+感谢北师天文社lzy提供服务器；<br/>
+感谢lzz同学提供技术帮助；<br/>
+感谢星语小伙伴们的支持；<br/>
+Zhu1995zpb 2016 3 4
+</table>
+
+</div>
+
+<input type="button" name="submit" id="option2" onclick="
+if(optiondisplay==0)
+{
+document.getElementById('option1').style.display='block';
+document.getElementById('option2').value='隐藏所有按钮';
+optiondisplay=1;
+}
+else
+{
+document.getElementById('option1').style.display='none';
+document.getElementById('option2').value='显示所有按钮';
+optiondisplay=0;
+}
+" value="隐藏所有按钮"/> 
+
+<script language=javascript src=data.js></script>
+<script language=javascript src=solar.js></script>
+<script language=javascript src=star.js></script>
+<script language=javascript src=page.js></script>
+
+</body>
+</html>
