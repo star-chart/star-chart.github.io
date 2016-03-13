@@ -59,6 +59,7 @@ function time(y,m,d,t,z,lamda)
 	E = hcjj(T);
 	if(planet)
 		xingxing(jd);
+	setcolor();
 }
 
 function jd2time(jd)
@@ -395,6 +396,7 @@ changecolor = function ()
 		document.getElementById('changecolor').value="黑白";
 	}
 	begin();
+	setcolor();
 }
 changecolor1=0;
 
