@@ -1,4 +1,4 @@
-﻿
+
 
 (function (){
 
@@ -38,7 +38,7 @@ function mat399(a,b,c)
 	return mat299(a,mat299(b,c));
 }
 
-function setcolor()
+setcolor = function ()
 {
 	var sun_h=sin(phy/180*pi)*sin(ss[1])+cos(phy/180*pi)*cos(ss[1])*cos(lst/12*pi-ss[0])
 	if (flag==0||changecolor1==1)
@@ -768,7 +768,7 @@ function choosestars(x,y)
 
 star = function ()
 {
-	setcolor();
+
 	clear();
 	if(isdirection)
 		Rmat1();
