@@ -1,4 +1,4 @@
-﻿
+
 (function (){
 
 int2=Math.floor;
@@ -14,6 +14,7 @@ acos=Math.acos;
 atan=Math.atan;
 atan2=Math.atan2;
 pi=Math.PI;
+
 
 
  now = function()
@@ -36,6 +37,7 @@ function hcjj(t){
   var t2=t*t, t3=t2*t,t4=t3*t,t5=t4*t;
   return (84381.4060 -46.836769*t -0.0001831*t2 +0.00200340*t3 -5.76e-7*t4 -4.34e-8*t5)/(180*3600/Math.PI);
 }
+
 function time(y,m,d,t,z,lamda)
 {
 	var n=0;var g=0;
@@ -58,6 +60,102 @@ function time(y,m,d,t,z,lamda)
 	if(planet)
 		xingxing(jd);
 }
+
+function jd2time(jd)
+{  
+	var r=new Object();
+	var D=int2(jd+0.5), F=jd+0.5-D, c;  //取得日数的整数部份A及小数部分F
+
+	if(D>=2299161) c=int2((D-1867216.25)/36524.25),D+=1+c-int2(c/4);
+	D += 1524;              r.Y = int2((D-122.1)/365.25);//年数
+	D -= int2(365.25*r.Y);  r.M = int2(D/30.601); //月数
+	D -= int2(30.601*r.M);  r.D = D; //日数
+
+	if(r.M>13) r.M -= 13, r.Y -= 4715;
+	else       r.M -= 1,  r.Y -= 4716;
+   //日的小数转为时分秒
+
+	F*=24; r.h=int2(F); F-=r.h;
+	F*=60; r.m=int2(F); F-=r.m;
+	F*=60; r.s=F;
+       return r;
+  
+}
+
+changetime = function (dt)
+{
+	var newtime=jd2time(jd+z/24+dt);
+	year=newtime.Y;
+	month=newtime.M;
+	day=newtime.D;
+	ho=newtime.h;
+	mi=newtime.m;
+	s=newtime.s;
+	update_data2();
+	time(year,month,day,ho+mi/60+s/3600,z,lamda);
+	begin();
+}
+
+var timespeed=new Array(0,1/86400,1/8640,1/1440,1/144,1/24,1/2.4,1,7,30,0,-30,-7,-1,-1/2.4,-1/24,-1/144,-1/1440,-1/8640,-1/86400);
+var timego1=0;
+var speed=0;
+
+timego = function ()
+{
+	if (timego1==0)
+		return;
+	if (lianxu==1)
+	{
+		if(dtime>0.02)
+		{
+			dtime2=dtime*1500;
+			dtime3=dtime;
+		}
+		else
+		{
+			dtime2=20;
+			dtime3=0.02;
+		}
+	}
+	else
+	{
+		dtime2=1000;
+		dtime3=1;
+	}
+	//console.log(timespeed[speed]*dtime3);
+	timego0=setTimeout("timego();",dtime2);
+	changetime(timespeed[speed]*dtime3)
+}
+
+changespeed = function (a)
+{
+	if(speed+a!=10) speed=(speed+20+a)%20;
+	if (timego1==0) 
+	{
+		timego1=1;
+		timego();
+	}
+}
+
+timestop = function ()
+{
+	timego1=0;
+	speed=0;
+}
+
+changelianxu = function ()
+{
+	lianxu=1-lianxu;
+	if(lianxu==1)
+	{		
+		document.getElementById('changelianxu').value='时间连续';
+	}
+	if(lianxu==0)
+	{
+		document.getElementById('changelianxu').value="时间间断";
+	}
+}
+lianxu=1;
 
 var now1 = function ()
 {
@@ -134,7 +232,7 @@ function update_data2()
 	document.getElementById('day').value=day;
 	document.getElementById('ho').value=ho;
 	document.getElementById('mi').value=mi;
-	document.getElementById('s').value=s;
+	document.getElementById('s').value=floor(s+0.5);
 	document.getElementById('lamda').value=lamda;
 	document.getElementById('phy').value=phy;
 }
@@ -165,7 +263,7 @@ timedCount = function ()
 {
 	if (isdirection==0)
 		return;
-	directioning=setTimeout("timedCount()",dtime*1500);
+	directioning=setTimeout("timedCount();",dtime*1500);
 	setdirection();
 	begin();
 }
@@ -230,14 +328,14 @@ change1 = function ()
 	gird_dp=1-gird_dp;
 	begin();
 }
-gird_dp=1;
+gird_dp=0;
 
 change2 = function ()
 {
 	gird_eq=1-gird_eq;
 	begin();
 }
-gird_eq=1;
+gird_eq=0;
 
 change3 = function ()
 {
@@ -446,6 +544,9 @@ flag=1;
 load_data();
 now();
 optiondisplay=1;
+
+
+
 
 })();
 
