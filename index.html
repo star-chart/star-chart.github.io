@@ -39,9 +39,15 @@ Your browser does not support the canvas element.
 <input type="button" name="submit" onclick="move6(4);" value="↓"  style="width: 85px; height: 60px;" /> 
 <input type="button" name="submit" onclick="move6(3);" value="→"  style="width: 85px; height: 60px;" />
 
-
-
 <br/>
+
+-<input type="submit" name="submit" onclick="changespeed(-1);" value="<<"   style="width: 85px; height: 60px;" />
+-<input type="submit" name="submit" onclick="timestop();" value="||"   style="width: 85px; height: 60px;" />
+-<input type="submit" name="submit" onclick="changespeed(1);" value=">>"   style="width: 85px; height: 60px;" />
+-<input type="submit" name="submit" id="changelianxu" onclick="changelianxu();" value="时间连续"   style="width: 85px; height: 60px;" />
+-
+<br/>
+
 
 <input type="text" name="y" id="year" value=2016 onchange="load_data();begin();" style="width:40px;" />年 
 <input type="text" name="m" id="month" value=2 onchange="load_data();begin();"  style="width:20px;" />月 
