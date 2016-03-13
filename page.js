@@ -395,8 +395,9 @@ changecolor = function ()
 	{
 		document.getElementById('changecolor').value="黑白";
 	}
-	begin();
 	setcolor();
+	begin();
+
 }
 changecolor1=0;
 
