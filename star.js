@@ -2,8 +2,6 @@
 
 (function (){
 
-
-
 function int2(v) { return Math.floor(v); }
 function sqrt(x) { return Math.sqrt(x);  }
 function floor(x){ return Math.floor(x); }
@@ -40,7 +38,7 @@ function mat399(a,b,c)
 
 setcolor = function ()
 {
-	var sun_h=sin(phy/180*pi)*sin(ss[1])+cos(phy/180*pi)*cos(ss[1])*cos(lst/12*pi-ss[0])
+	//var sun_h=sin(phy/180*pi)*sin(ss[1])+cos(phy/180*pi)*cos(ss[1])*cos(lst/12*pi-ss[0])
 	if (flag==0||changecolor1==1)
 	{
 		rgb0=new Array(0,0,0);
@@ -93,7 +91,7 @@ setcolor = function ()
 		"#202020",//6星座名
 		"#60A0FF",//7星座连线
 		"#0000C0",//8方位
-		"#808080",//9logo
+		"#404040",//9logo
 		"#C0D0F0",//10月亮前景
 		"#4060FF",//11月亮背景	
 		""
@@ -113,7 +111,7 @@ setcolor = function ()
 		"#202020",//6星座名
 		"#808080",//7星座连线
 		"#101010",//8方位
-		"#808080",//9logo
+		"#404040",//9logo
 		"#000000",//10月亮前景
 		"#FFFFFF",//11月亮背景	
 		""
@@ -765,10 +763,8 @@ function choosestars(x,y)
 }
 
 
-
 star = function ()
 {
-
 	clear();
 	if(isdirection)
 		Rmat1();
