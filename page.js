@@ -15,9 +15,19 @@ atan=Math.atan;
 atan2=Math.atan2;
 pi=Math.PI;
 
+Canvas_init = function (id)
+{
+	c=document.getElementById(id);
+	cxt=c.getContext("2d");
+	document.getElementById(id).onmousedown = function(){ move1(); }
+	document.getElementById(id).onmousedown = function(){ move1(); }
+	document.getElementById(id).onmousemove = function(){ move2(); }
+	document.getElementById(id).onmouseup = function(){ move3();move4(); }
+	document.getElementById(id).onmouseout = function(){ move3(); }
+	document.getElementById(id).onmousewheel = function(){ move5(); }
+}
 
-
- now = function()
+now = function()
 {
 	var myDate = new Date();
 	year=myDate.getFullYear(); 
@@ -26,10 +36,8 @@ pi=Math.PI;
 	ho=myDate.getHours();
 	mi=myDate.getMinutes();
 	s=myDate.getSeconds(); 
+	time(year,month,day,ho+mi/60+s/3600,z,lamda);
 	update_data2();
-	load_data();
-	if(flag==0)
-		projection();
 	begin();
 }
 
@@ -37,6 +45,9 @@ function hcjj(t){
   var t2=t*t, t3=t2*t,t4=t3*t,t5=t4*t;
   return (84381.4060 -46.836769*t -0.0001831*t2 +0.00200340*t3 -5.76e-7*t4 -4.34e-8*t5)/(180*3600/Math.PI);
 }
+
+sun_h=1;
+last_sun_h=0;
 
 function time(y,m,d,t,z,lamda)
 {
@@ -57,9 +68,14 @@ function time(y,m,d,t,z,lamda)
 	lst=(jd1*24.06570982441908+18.697374558+lamda/15)%24;
 	T=jd1/36525
 	E = hcjj(T);
-	if(planet)
+	if(planet||changecolor1==0)
 		xingxing(jd);
-	setcolor();
+	last_sun_h=sun_h;
+	sun_h=sin(phy/180*pi)*sin(ss[1])+cos(phy/180*pi)*cos(ss[1])*cos(lst/12*pi-ss[0]);
+	if(last_sun_h*sun_h<=0)
+	{
+		setcolor();
+	}
 }
 
 function jd2time(jd)
@@ -144,19 +160,6 @@ timestop = function ()
 	speed=0;
 }
 
-changelianxu = function ()
-{
-	lianxu=1-lianxu;
-	if(lianxu==1)
-	{		
-		document.getElementById('changelianxu').value='时间连续';
-	}
-	if(lianxu==0)
-	{
-		document.getElementById('changelianxu').value="时间间断";
-	}
-}
-lianxu=1;
 
 var now1 = function ()
 {
@@ -167,8 +170,6 @@ var now1 = function ()
 	return time11*60+time12+time10/1000;
 }
 
-c=document.getElementById("myCanvas");
-cxt=c.getContext("2d");
 
 load_data = function ()
 {
@@ -234,8 +235,6 @@ function update_data2()
 	document.getElementById('ho').value=ho;
 	document.getElementById('mi').value=mi;
 	document.getElementById('s').value=floor(s+0.5);
-	document.getElementById('lamda').value=lamda;
-	document.getElementById('phy').value=phy;
 }
 function update_data3()
 {
@@ -243,6 +242,11 @@ function update_data3()
 	document.getElementById('sizey').value=sizey;
 	document.getElementById('ss1').value=star_size1;
 	document.getElementById('ss2').value=star_size2;
+}
+function update_data4()
+{
+	document.getElementById('lamda').value=lamda;
+	document.getElementById('phy').value=phy;
 }
 
 
@@ -284,8 +288,8 @@ live = function ()
 	}
 }
 
-time2=0;
-time1=0;
+var time2=0;
+var time1=0;
 
 begin = function ()
 {
@@ -300,8 +304,6 @@ begin = function ()
 	time2=now1();
 	dtime=time2-time1;
 	document.getElementById('fps').value=floor(1/(time2-time1));
-	//document.getElementById('fps').innerHTML=floor(1/(time2-time1));
-	update_data1();
 }
 
 
@@ -312,17 +314,16 @@ projection = function ()
 	if(flag==1)
 	{		
 		document.getElementById('change').value='赤道仪';
-		//document.getElementById("change").innerHTML = '赤道仪';
 	}
 	if(flag==0)
 	{
 		document.getElementById('change').value="地平仪";
-		//document.getElementById("change").innerHTML = "地平仪";
 	}
 	flag=1-flag;
+	setcolor();
 	begin();
 }
-flag=0;
+flag=1;
 
 change1 = function ()
 {
@@ -401,24 +402,39 @@ changecolor = function ()
 }
 changecolor1=0;
 
+changelianxu = function ()
+{
+	lianxu=1-lianxu;
+	if(lianxu==1)
+	{		
+		document.getElementById('changelianxu').value='时间连续';
+	}
+	if(lianxu==0)
+	{
+		document.getElementById('changelianxu').value="时间间断";
+	}
+}
+lianxu=1;
+
 
 randomchart = function randomchart()
 {
 	if(flag==1)projection();
-	if(gird_dp)change1();
-	if(gird_eq)change2();
-	if(gird_ec)change3();
-	if(fangwei)change4();
-	if(con_line)change5();
-	if(con_name)change6();
-	if(planet)change7();
-	if(star_name)change8();
+	gird_dp=0;
+	gird_eq=0;
+	gird_ec=0;
+	fangwei=0;
+	con_line=0;
+	con_name=0;
+	planet=0;
+	star_name=0;
 	x1=Math.random()*24;
 	y1=(acos(Math.random()*2-1)/pi-0.5)*180;
 	begin();
 	document.getElementById('RA').value="";
 	document.getElementById('Dec').value="";
 }
+
 
 document.onselectstart = new Function('event.returnValue=false;');
 var btnNum;
@@ -494,6 +510,7 @@ if (flag==0)
 	x1=A/15;
 	y1=h;
 }
+update_data1();
 begin();
 }
 
@@ -506,6 +523,7 @@ move5 = function move5()
 		fov=10;
 	if (fov>135)
 		fov=135;
+
 	begin();
 }
 
@@ -538,13 +556,15 @@ move6 = function move6(i)
 	if(flag==0){x1=A/15;y1=h;}
 	update_data1()
 	begin();
-
 }
 
 
-flag=1;
+
+Canvas_init('myCanvas');
+
 
 load_data();
+setcolor();
 now();
 optiondisplay=1;
 
