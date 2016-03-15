@@ -14,6 +14,14 @@ acos=Math.acos;
 atan=Math.atan;
 atan2=Math.atan2;
 pi=Math.PI;
+function sgn(x)
+{
+	if(x>0)return 1;
+	if(x<0)return -1;
+	if(x==0)return 0;
+}
+
+
 
 Canvas_init = function (id)
 {
@@ -222,9 +230,9 @@ load_data = function ()
 function update_data1()
 {
 	document.getElementById('RA').value=Math.floor(x1*100)/100;
-	document.getElementById('Dec').value=Math.floor(Math.abs(y1)*10)/10*Math.sign(y1);
+	document.getElementById('Dec').value=Math.floor(Math.abs(y1)*10)/10*sgn(y1);
 	document.getElementById('A').value=Math.floor(x2*10)/10;
-	document.getElementById('h').value=Math.floor(Math.abs(y2)*10)/10*Math.sign(y2);
+	document.getElementById('h').value=Math.floor(Math.abs(y2)*10)/10*sgn(y2);
 	document.getElementById('fov').value=Math.floor(fov*10)/10;
 }
 function update_data2()
