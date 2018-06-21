@@ -1,4 +1,4 @@
-﻿(function (){
+(function (){
 
 //=================================行星星历=========================================
 //==================================================================================
@@ -160,46 +160,55 @@ function xyz2llr(xyz){ //直角坐标转球
   return r;
 }
 
-function xingX(xt){ //行星计算,jd力学时
+function xingX (xt,time){ //行星计算,jd力学时
 	var z,a;
 	if(xt==10)
 	{
-		z  = m_coord(T,-1,-1,-1);
+		z  = m_coord(time.T,-1,-1,-1);
 		//z[0] = rad2mrad(z[0]); 
-		z = llrConv(z,E);
+		z = llrConv(z,time.E);
 	}
 	if(xt<10)
 	{
-		a = p_coord(0, T,-1,-1,-1);
-		z = p_coord(xt,T,-1,-1,-1);
+		a = p_coord(0, time.T,-1,-1,-1);
+		z = p_coord(xt,time.T,-1,-1,-1);
 		z[0] = rad2mrad(z[0]);
 		z = h2g(z,a);
 		z[0] = rad2mrad(z[0]);
-		z = llrConv(z,E);
+		z = llrConv(z,time.E);
 	}
-	var sj = rad2rrad(lst*15*Math.PI/180 - z[0]);
-	parallax(z, sj,phy/180*Math.PI,0);
+	var sj = rad2rrad(time.LST*15*Math.PI/180 - z[0]);
+	parallax(z, sj,time.lat/180*Math.PI,0);
 	return z;
 }
 
 
-xingxing = function ()
+
+xingxing = function (time)
 {
-	var z=xingX(9)
-	ss[0]=z[0];
-	ss[1]=z[1];
+	var z=xingX(9,time);
+	ss[0]=z[0]/pi*180;
+	ss[1]=z[1]/pi*180;
 	ss[2]=z[2];
 	for (var i=1;i<8;i++)
 	{
-		z=xingX(i)
-		ss[3*i+0]=z[0];
-		ss[3*i+1]=z[1];
+		z=xingX(i,time);
+		ss[3*i+0]=z[0]/pi*180;
+		ss[3*i+1]=z[1]/pi*180;
 		ss[3*i+2]=z[2];
 	}
-	z=xingX(10)
-	ss[24]=z[0];
-	ss[25]=z[1];
+	z=xingX(10,time);
+	ss[24]=z[0]/pi*180;
+	ss[25]=z[1]/pi*180;
 	ss[26]=z[2];
+}
+
+get_sun = function(time)
+{
+	var z=xingX(9,time);
+	z[0]=z[0]/pi*180/15;
+	z[1]=z[1]/pi*180;
+	return z;
 }
 
 
