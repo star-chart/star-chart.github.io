@@ -1,7 +1,3 @@
-
-
-(function (){
-
 function int2(v) { return Math.floor(v); }
 function sqrt(x) { return Math.sqrt(x);  }
 function floor(x){ return Math.floor(x); }
@@ -16,6 +12,14 @@ function atan(x) { return Math.atan(x);  }
 function atan2(y,x){ return Math.atan2(y,x); }
 var pi=Math.PI;
 
+function sgn(x)
+{
+	if(x>0)return 1;
+	if(x<0)return -1;
+	if(x==0)return 0;
+}
+
+
 function mat299(a,b)
 {
 	var c=new Array(
@@ -29,768 +33,1025 @@ function mat299(a,b)
 	a[6]*b[1]+a[7]*b[4]+a[8]*b[7],
 	a[6]*b[2]+a[7]*b[5]+a[8]*b[8])
 	return c;
-}
+}//两个矩阵相乘
 
 function mat399(a,b,c)
 {
 	return mat299(a,mat299(b,c));
-}
+}//三个矩阵相乘
 
-setcolor = function ()
+function pos3(x,y,z)
 {
-	//var sun_h=sin(phy/180*pi)*sin(ss[1])+cos(phy/180*pi)*cos(ss[1])*cos(lst/12*pi-ss[0])
-	if (flag==0||changecolor1==1)
+	this.x=x;
+	this.y=y;
+	this.z=z;
+}//三维坐标
+
+function pos2(x,y)
+{
+	this.x=x;
+	this.y=y;
+}//二维坐标
+
+Canvas_init = function (id)
+{
+	c=document.getElementById(id);
+	cxt=c.getContext("2d");
+	document.getElementById(id).onmousedown = function(){ touch.click(event||window.event,1); }
+	document.getElementById(id).onmousemove = function(){ touch.click(event||window.event,2); }
+	document.getElementById(id).onmouseup = function(){ touch.clickend(); }
+	document.getElementById(id).onmouseout = function(){ touch.clickend(); }
+	document.getElementById(id).onmousewheel = function(){ touch.click(event||window.event,5); }
+	document.getElementById(id).ontouchstart = function(){ touch.touch(event||window.event,1); }
+	document.getElementById(id).ontouchend = function(){ touch.clickend();}
+	document.getElementById(id).ontouchmove = function(){ touch.touch(event||window.event,2); }
+}//画布初始化
+
+
+function R_x(a)
+{
+	return new Array(1,0,0,0,cos(a),-sin(a),0,sin(a),cos(a));
+}//x轴旋转矩阵
+
+function R_y(a)
+{
+	return new Array(cos(a),0,sin(a),0,1,0,-sin(a),0,cos(a));	
+}//y轴旋转矩阵
+
+function R_z(a)
+{
+	return new Array(cos(a),-sin(a),0,sin(a),cos(a),0,0,0,1);
+}//z轴旋转矩阵
+
+function R_pos(R,pos)
+{
+	var pos1 = new pos3(
+			R[0]*pos.x + R[1]*pos.y + R[2]*pos.z ,
+			R[3]*pos.x + R[4]*pos.y + R[5]*pos.z ,
+			R[6]*pos.x + R[7]*pos.y + R[8]*pos.z ,
+			);
+	return pos1;
+}//旋转矩阵乘向量
+
+function star_color(r,g,b)
+{
+	this.r=r;
+	this.g=g;
+	this.b=b;
+}//rgb颜色
+
+function rot()
+{
+	this.a = undefined;
+	this.b = undefined;
+	this.c = undefined;
+	this.set = function(a,b,c)
 	{
-		rgb0=new Array(0,0,0);
-		rgb1=new Array(255-rgb0[0],255-rgb0[1],255-rgb0[2]);
-		colordata=new Array(
-		"#0000C0",//0赤道网格
-		"#800000",//1地平网格
-		"#808000",//2黄道
-		"#C0C0C0",//3地平线
-		"#808080",//4小星名
-		"#FFFFFF",//5大星名
-		"#A0A0A0",//6星座名
-		"#606060",//7星座连线
-		"#00FFFF",//8方位
-		"#808080",//9logo
-		"#FFFFFF",//10月亮前景
-		"#000000",//11月亮背景		
-		""
-		);
+		this.a = a;
+		this.b = b;
+		this.c = c;		
 	}
-	else if (sun_h<0)
+}//三维旋转参数
+
+function timenew()
+{
+	this.year = undefined;//年
+	this.month = undefined;//月
+	this.day = undefined;//日
+	this.hour = undefined;//时
+	this.minute = undefined;//分
+	this.second = undefined;//秒
+	this.zone = undefined;//时区24时制
+
+	this.lon = 115.17;//经度
+	this.lat = 36.85;//纬度
+
+	this.time = undefined;//时间24时制
+	this.JD = undefined;//儒略日
+	this.JD1 = undefined;//简化儒略日
+	this.LST = undefined;//地方恒星时
+	this.T = undefined;//儒略千年数
+	this.E = undefined;//黄赤交角
+	
+	this.sun_h = 0;//太阳高度
+
+	this.update_data = function ()
 	{
-		rgb0=new Array(0,0,50);
-		rgb1=new Array(255-rgb0[0],255-rgb0[1],255-rgb0[2]);
-		colordata=new Array(
-		"#0000C0",//0赤道网格
-		"#C00000",//1地平网格
-		"#C0C000",//2黄道
-		"#C0C0C0",//3地平线
-		"#808080",//4小星名
-		"#FFFFFF",//5大星名
-		"#808080",//6星座名
-		"#404040",//7星座连线
-		"#00FFFF",//8方位
-		"#808080",//9logo
-		"#FFFF00",//10月亮前景
-		"#000040",//11月亮背景	
-		""
-		);
-	}else{
-		rgb0=new Array(50,100,255);
-		rgb1=new Array(255-rgb0[0],255-rgb0[1],255-rgb0[2]);
-		colordata=new Array(
-		"#4040C0",//0赤道网格
-		"#804040",//1地平网格
-		"#808000",//2黄道
-		"#202020",//3地平线
-		"#404040",//4小星名
-		"#000000",//5大星名
-		"#202020",//6星座名
-		"#60A0FF",//7星座连线
-		"#0000C0",//8方位
-		"#404040",//9logo
-		"#C0D0F0",//10月亮前景
-		"#4060FF",//11月亮背景	
-		""
-		);
-	}
-	if (changecolor1==2)
+		document.getElementById('year').value=this.year;
+		document.getElementById('month').value=this.month;
+		document.getElementById('day').value=this.day;
+		document.getElementById('ho').value=this.hour;
+		document.getElementById('mi').value=this.minute;
+		document.getElementById('s').value=floor(this.second+0.5);
+		document.getElementById('lamda').value=this.lon;
+		document.getElementById('phy').value=this.lat;
+	}//更新页面
+	this.hcjj = function( t )
 	{
-		rgb0=new Array(255,255,255);
-		rgb1=new Array(-255,-255,-255);
-		colordata=new Array(
-		"#404040",//0赤道网格
-		"#404040",//1地平网格
-		"#303030",//2黄道
-		"#000000",//3地平线
-		"#404040",//4小星名
-		"#000000",//5大星名
-		"#202020",//6星座名
-		"#808080",//7星座连线
-		"#101010",//8方位
-		"#404040",//9logo
-		"#000000",//10月亮前景
-		"#FFFFFF",//11月亮背景	
-		""
-		);
-	}
-}
-
-var rgb0=new Array(3);
-var rgb1=new Array(3);
-var colordata=new Array(13);
-
-function clear()
-{
-	for (var i=0;i<imgData.data.length;i+=4)
+ 		var t2=t*t, t3=t2*t,t4=t3*t,t5=t4*t;
+  		this.E = (84381.4060 -46.836769*t -0.0001831*t2 +0.00200340*t3 -5.76e-7*t4 -4.34e-8*t5)/(180*3600/Math.PI);
+	}//黄赤交角
+	this.get_sun_h = function()
 	{
-		imgData.data[i]=rgb0[0];
-		imgData.data[i+1]=rgb0[1];
-		imgData.data[i+2]=rgb0[2];
-		imgData.data[i+3]=255;
-	}
-}
-
-function logo()
-{
-	cxt.font="15px 宋体";
-	cxt.fillStyle=colordata[9];
-	cxt.fillText("MADE by 北洋星语 Zhu1995zpb",10,sizey-10);
-}
-
-drawstar = function (x,y,r,rgb)
-{
-	if (changecolor1==2){
-
-	var x1=floor(x-r);
-	var x2=floor(x+r)+1;
-	var y1=floor(y-r);
-	var y2=floor(y+r)+1;
-	var x0=x2-x1+1;
-	var y0=y2-y1+1;
-	for (var j=x1;j<x1+x0;j++){
-		for (var k=y1;k<y1+y0;k++){
-			var ll=((j-x)*(j-x)+(k-y)*(k-y))/(r*r);
-			if (ll<1){
-				ll=1-ll*ll*ll*ll;
-				imgData.data[4*j+k*size0x*4+0]+=rgb1[0]*ll*mag2;
-				imgData.data[4*j+k*size0x*4+1]+=rgb1[1]*ll*mag2;
-				imgData.data[4*j+k*size0x*4+2]+=rgb1[2]*ll*mag2;
-				imgData.data[4*j+k*size0x*4+3]=255;
-			}
-		}
-	}
-
-	}else{
-
-	var x1=floor(x-r);
-	var x2=floor(x+r)+1;
-	var y1=floor(y-r);
-	var y2=floor(y+r)+1;
-	var x0=x2-x1+1;
-	var y0=y2-y1+1;
-	for (var j=x1;j<x1+x0;j++){
-		for (var k=y1;k<y1+y0;k++){
-			var ll=((j-x)*(j-x)+(k-y)*(k-y))/(r*r);
-			if (ll<1){
-				ll=1-ll*ll*ll;
-				imgData.data[4*j+k*size0x*4+0]+=rgb1[0]*rgb[0]*ll*mag2;
-				imgData.data[4*j+k*size0x*4+1]+=rgb1[1]*rgb[1]*ll*mag2;
-				imgData.data[4*j+k*size0x*4+2]+=rgb1[2]*rgb[2]*ll*mag2;
-				imgData.data[4*j+k*size0x*4+3]=255;
-			}
-		}
-	}
-
-	}
-}
-
-
-function Rmat(flag,a1,a2,a3)
-{
-
-if(flag==1)
-{
-	var A=a1;
-	var h=a2;
-	var c=a3;
-	var a=-A;
-	var b=-90+h;
-	var c=c;
-	a=a/180*pi;
-	b=b/180*pi;
-	c=c/180*pi;
-	var R1=new Array(cos(a),sin(a),0,-sin(a),cos(a),0,0,0,1);
-	var R2=new Array(1,0,0,0,cos(b),sin(b),0,-sin(b),cos(b));
-	var R3=new Array(cos(c),sin(c),0,-sin(c),cos(c),0,0,0,1);
-	var Rx=mat399(R3,R2,R1);
-	a=6+lst;
-	b=(90-phy);
-	c=0;
-	a=a*15/180*pi;
-	b=b/180*pi;
-	c=c/180*pi;
-	var R1=new Array(cos(a),sin(a),0,-sin(a),cos(a),0,0,0,1);
-	var R2=new Array(1,0,0,0,cos(b),sin(b),0,-sin(b),cos(b));
-	var R3=new Array(cos(c),0,-sin(c),0,1,0,sin(c),0,cos(c));
-	var Ry=mat399(R3,R2,R1);
-	R=mat299(Rx,Ry);
-	Rz=Rx;
-	return R;
-}
-
-if(flag==0)
-{
-	var RA=a1;
-	var Dec=a2;
-	var o=a3;
-	var a=RA;
-	var b=Dec;
-	a=a*15-90;
-	b=-90+b;
-	var c=o;
-	a=a/180*pi;
-	b=b/180*pi;
-	c=c/180*pi;
-	var R1=new Array(cos(a),sin(a),0,-sin(a),cos(a),0,0,0,1);
-	var R2=new Array(1,0,0,0,cos(b),sin(b),0,-sin(b),cos(b));
-	var R3=new Array(cos(c),sin(c),0,-sin(c),cos(c),0,0,0,1);
-	var Rx=mat399(R3,R2,R1);
-	R=Rx;
-	return R;
-}
-
-}
-
-function Rmat1()
-{
-	var a=direction_current[0];
-	var b=direction_current[1];
-	var c=direction_current[2];
-	a=a/180*pi;
-	b=b/180*pi;
-	c=c/180*pi;
-	x2=atan2(-cos(a)*sin(c)-sin(a)*sin(b)*cos(c),-sin(a)*sin(c)+cos(a)*sin(b)*cos(c))/pi*180;
-	o=atan2(cos(b)*sin(c),sin(b))/pi*180;
-	y2=-asin(cos(b)*cos(c))/pi*180;
-	if(x2<0)x2+=360;
-}
-
-var rgb=new Array(0,0,0);
-
-var stardata3= new Array(30000);
-{
-	for (var i=0;i<10000;i++){
-		var RA=RD[2*i];
-		var Dec=RD[2*i+1];
-		var a=RA*15/180*pi;
-		var b=Dec/180*pi;
-		stardata3[3*i+0]=cos(a)*cos(b);
-		stardata3[3*i+1]=sin(a)*cos(b);
-		stardata3[3*i+2]=sin(b);
-	}
-
-}
-
-var mag2;
-
-starmag = function starmag(c)
-{
-	if (c<1){
-		c=(c-1)/2.5+1;
-	}
-	var mag1=star_size1;
-	mag2=Math.pow(0.4,c-star_size2);
-	if (mag2>1){
-		mag1=mag1*Math.sqrt(mag2);
-		mag2=1;
-	}
-	r=mag1*z1/2*size/1000*sqrt(fov/30);
-	return r;
-}
-
-var starlog= new Array(40000);
-
-var c,d,z,l,x,y,r;
-var star_n;
-
-function findstar()
-{
-	if(planet)
-		findstars();
-	star_n=0;
-	for (var i=0;i<10000;i++){
-		c=mag[i];
-		d=color_star[i];
-		z=new Array(stardata3[3*i+0],stardata3[3*i+1],stardata3[3*i+2])
-		l=1+R[6]*z[0]+R[7]*z[1]+R[8]*z[2];
-		if (l>z2)
+		if(opt.changecolor.value==0)
 		{
-			x=R[0]*z[0]+R[1]*z[1]+R[2]*z[2];
-			y=R[3]*z[0]+R[4]*z[1]+R[5]*z[2];
-			x=(x/l*size*z1+sizex)/2;
-			y=(y/l*size*z1+sizey)/2;
-			if (x<sizex&&x>0&&y<sizey&&y>0)
+			if(opt.planet.value)
 			{
-				rgb[0]=color_data[3*d+0];
-				rgb[1]=color_data[3*d+1];
-				rgb[2]=color_data[3*d+2];
-				drawstar(x+size1,y+size1,starmag(c),rgb);
-				starlog[4*star_n+0]=i;
-				starlog[4*star_n+1]=x;
-				starlog[4*star_n+2]=y;
-				starlog[4*star_n+3]=r;
-				star_n++;
+				this.sun_h = sgn(obj.planets[0].chidao.to_diping().h);
 			}
-		}
-	}
-}
-
-function starname()
-{
-	if(planet)
-		starnames();
-	cxt.font="15px 宋体";
-	cxt.fillStyle=colordata[4];
-	for (var i=0;mag[starlog[4*i+0]]<(90/(fov+5));i++){
-		cxt.fillText(name1[starlog[4*i+0]],starlog[4*i+1]+starlog[4*i+3]+2,starlog[4*i+2]+starlog[4*i+3]);
-	}
-}
-
-choosestar = function (x,y)
-{
-	if(planet)
-		choosestars(x,y);
-	for (var i=0;i<star_n;i++){
-		var x1=starlog[4*i+1];
-		var y1=starlog[4*i+2];
-		var r=starlog[4*i+3];
-		var r1=5;
-		if (r>r1)
-			r1=r;
-		if (sqrt((x1-x)*(x1-x)+(y1-y)*(y1-y))<r1)
-		{
-			cxt.font="25px 黑体";
-			cxt.fillStyle=colordata[5];
-			cxt.fillText(name1[starlog[4*i+0]]+"  "+name2[starlog[4*i+0]]+"  "+mag[starlog[4*i+0]],name_x,name_y);
-			cxt.font="15px 宋体";
-			cxt.fillStyle=colordata[5];
-			cxt.fillText(name1[starlog[4*i+0]],x1+r+2,y1+r);
-			name_y+=35;
-		}
-	}
-}
-
-var be;
-
-function drawline()
-{
-	var dx=0.05;
-	var dy=0.5;
-	var d0=360/(floor(360/(40*2*fov/size)))/15;
-	var d1=160/(floor(160/(40*2*fov/size)));
-	if (d0>0.5)d0=0.5;
-	if (d1>10)d1=10;
-
-	if (gird_eq){
-
-		cxt.beginPath();
-		cxt.strokeStyle=colordata[0];
-		cxt.lineWidth=starmag(star_size2)/2;
-
-		for (var j=-80;j<90;j+=10)
-		{
-			be=0;
-			for (var i=-12;i-dx<=12;i+=d0)
+			else
 			{
-				drawline1(i*15,j,R);
+				var s1=new chidao();
+				var s2=get_sun(time);
+				s1.set(s2[0],s2[1]);		
+				this.sun_h = sgn(s1.to_diping().h);
 			}
-			be=0;
 		}
-
-		for (var i=0;i<24;i+=1)
-		{
-			be=0;
-			for (var j=-80;j-dy<=80;j+=d1)
-			{
-				drawline1(i*15,j,R);
-			}
-			be=0;
-		}
-
-		cxt.stroke();
-
-	}
-
-	if (flag&&gird_dp){
-
-		cxt.beginPath();
-		cxt.strokeStyle=colordata[1];
-		cxt.lineWidth=starmag(star_size2)/2;
-
-		for (var j=-80;j<90;j+=10)
-		{
-			be=0;
-				for (var i=-12;i-dx<=12;i+=d0)
-			{
-				drawline1(i*15,j,Rz);
-			}
-			be=0;
-		}
-
-		for (var i=0;i<24;i+=1)
-		{
-			be=0;
-			for (var j=-80;j-dy<=80;j+=d1)
-			{
-				drawline1(i*15,j,Rz);
-			}
-			be=0;
-		}
-
-		cxt.stroke();
-
-	}
-
-	if (gird_ec){
-
-		cxt.beginPath();
-		cxt.strokeStyle=colordata[2];
-		cxt.lineWidth=1;
-
-		be=0;
-		for (var i=-12;i-dx<=12;i+=d0)
-		{
-			var a1=(i*15)/180*pi;
-			var a=atan2( sin(a1)*cos(E), cos(a1) );
-			var b=asin ( sin(E)*sin(a1) );
-			drawline1(a*180/pi,b*180/pi,R);
-		}
-		be=0;
-
-		cxt.stroke();
-
-	}
-
-	if (flag&&fangwei){
-
-		cxt.beginPath();
-		cxt.strokeStyle=colordata[3];
-		cxt.lineWidth=10;
-
-		for (var j=0;j<1;j+=1)
-		{
-			be=0;
-			for (var i=-12;i-dx<=12;i+=d0/10)
-			{
-				drawline1(i*15,j,Rz);
-			}
-			be=0;
-		}
-
-		cxt.stroke();
-
-	}
-
-}
-
-function drawfangwei()
-{
-	var fangxiangdata=new Array(0,0,1,0,0,-1,0,1,0,0,-1,0,1,0,0,-1,0,0);
-	var fangxiangname=new Array('天顶','天底','北','南','东','西')
-
-	cxt.font="30px 黑体";
-	cxt.fillStyle=colordata[8];
-	for (var j=0;j<6;j++){
-		var z=new Array(fangxiangdata[3*j+0],fangxiangdata[3*j+1],fangxiangdata[3*j+2])
-		var l=1+Rz[6]*z[0]+Rz[7]*z[1]+Rz[8]*z[2];
-		if (l>z2-0.1)
-		{
-			var x=Rz[0]*z[0]+Rz[1]*z[1]+Rz[2]*z[2];
-			var y=Rz[3]*z[0]+Rz[4]*z[1]+Rz[5]*z[2];
-			x=(x/l*size*z1+sizex)/2;
-			y=(y/l*size*z1+sizey)/2;
-			var dy=j>1?10:-15;
-			cxt.fillText(fangxiangname[j],x-15*fangxiangname[j].length,y-dy);
-		}
-	}
-}
-
-
-var line_c_n=1348;
-var linec=new Array(line_c_n);
-
-function drawline2()
-{
-	var r0=starmag(star_size2);
-	var r1,r2;
-	cxt.beginPath();
-	cxt.strokeStyle=colordata[7];
-	cxt.lineWidth=r0;
-	for (var j=0;j<line_c_n;j++)
+	}//计算太阳高度
+	this.cal_JD_data = function()
 	{
-		linec[j]=0;
-		var i=line_c[j]-1;
-		z=new Array(stardata3[3*i+0],stardata3[3*i+1],stardata3[3*i+2])
-		l=1+R[6]*z[0]+R[7]*z[1]+R[8]*z[2];
-		if (l>z2-0.3)
+		this.JD1=this.JD-2451545;
+		this.LST=(this.JD1*24.06570982441908+18.697374558+this.lon/15)%24;
+		this.T=this.JD1/36525;
+		this.hcjj(this.T);
+		if(opt.planet.value)
 		{
-			x=R[0]*z[0]+R[1]*z[1]+R[2]*z[2];
-			y=R[3]*z[0]+R[4]*z[1]+R[5]*z[2];
-			x=(x/l*size*z1+sizex)/2;
-			y=(y/l*size*z1+sizey)/2;
-			if (j%2==0)
-			{
-				var x1=x;var y1=y;
-				linec[j]=1;
-				r1=starmag(mag[i])+2*r0;
-			}
-			if (j%2==1)
-			{
-				if(linec[j-1]==1)
-				{
-					var x2=x;var y2=y;r2=starmag(mag[i])+2*r0;			
-					var k0=sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
-					if (k0>(r1+r2))
-					{
-						var k1=(x2-x1)/k0;
-						var k2=(y2-y1)/k0;
-						x1+=r1*k1;x2-=r2*k1;
-						y1+=r1*k2;y2-=r2*k2;
-						cxt.moveTo(x1,y1);
-						cxt.lineTo(x2,y2);
-					}
-				}
-			}
+			xingxing(this);
+			for (i=0;i<9;i++)
+				obj.planets[i].chidao.set(ss[i*3+0]/15,ss[i*3+1]);
 		}
-	}
-	cxt.stroke();
+		if(this.sun_h != 0)
+			time.get_sun_h();
+		this.update_data();
+	}//从JD计算时间数据
+	this.cal_JD = function()
+	{
+		var n=0;
+		var g=0;
+		var m=this.month;
+		var y=this.year;
+		var d=this.day;
+		if (y*372+m*31+Math.floor(d)>=588829)
+		g=1;
+		if (m<=2)
+		{
+			m=m+12;y=y-1;
+		}
+		if (g==1)
+		{
+			n=Math.floor(y/100);
+			n=2-n+Math.floor(n/4);
+		}
+		this.time=this.hour+this.minute/60+this.second/3600;
+		this.JD=Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+n-1524.5+(this.time-this.zone)/24;
+		this.cal_JD_data();
+	}//从时间计算JD
+	this.load_from_page = function()
+	{
+		this.year = document.getElementById('year').value*1;
+		this.month = document.getElementById('month').value*1;
+		this.day = document.getElementById('day').value*1;
+		this.hour = document.getElementById('ho').value*1;
+		this.minute = document.getElementById('mi').value*1;
+		this.second = document.getElementById('s').value*1;
+		this.zone = 8;
+		this.lon = document.getElementById('lamda').value*1;
+		this.lat = document.getElementById('phy').value*1;
+		this.cal_JD();
+	}//从页面加载时间
+	this.load_from_data = function(y,m,d,ho,mi,se,zone,lon,lat)
+	{
+		this.year = y;
+		this.month = m;
+		this.day = d;
+		this.hour = ho;
+		this.minute = mi;
+		this.second = se;
+		this.zone = zone;
+		this.lon = lon;
+		this.lat = lat;
+		this.cal_JD();
+	}//从数据加载时间
+	this.load_from_JD = function(jd,z)
+	{
+		this.JD = jd;
+		jd=jd+z/24;
+		var r=new Object();
+		var D=int2(jd+0.5), F=jd+0.5-D, c;
+		if(D>=2299161) c=int2((D-1867216.25)/36524.25),D+=1+c-int2(c/4);
+		D += 1524;              r.Y = int2((D-122.1)/365.25);
+		D -= int2(365.25*r.Y);  r.M = int2(D/30.601);
+		D -= int2(30.601*r.M);  r.D = D; 
+		if(r.M>13) r.M -= 13, r.Y -= 4715;
+		else       r.M -= 1,  r.Y -= 4716;
+ 
+
+		this.year=r.Y;
+		this.month=r.M;
+		this.day=r.D;
+		F*=24; this.hour=int2(F); F-=this.hour;
+		F*=60; this.minute=int2(F); F-=this.minute;
+		F*=60; this.second=F;
+		this.zone = z;
+		this.cal_JD_data();
+	}//从JD加载时间
+	this.change_time = function change_time(dt)
+	{
+		time.load_from_JD(this.JD+dt,this.zone);
+	}//更改时间
+	this.change_to_now = function ()
+	{
+		var myDate = new Date();
+		y=myDate.getFullYear(); 
+		m=myDate.getMonth()+1; 
+		d=myDate.getDate(); 
+		ho=myDate.getHours();
+		mi=myDate.getMinutes();
+		se=myDate.getSeconds(); 
+		this.load_from_data(y,m,d,ho,mi,se,this.zone,this.lon,this.lat);
+	}//时间调至当前
+	this.init = function()
+	{
+		this.zone = 8;
+		this.lon = document.getElementById('lamda').value*1;
+		this.lat = document.getElementById('phy').value*1;
+		this.change_to_now();
+	}//初始化
 }
 
-function drawline1(aa,bb,R0)
-{		a=aa/180*pi;
-		b=bb/180*pi;
-		z=new Array(cos(a)*cos(b),sin(a)*cos(b),sin(b));
-		l=1+R0[6]*z[0]+R0[7]*z[1]+R0[8]*z[2];
-		if (l>z2-0.3)
+function chidao()
+{
+	this.RA = undefined;//赤经24h
+	this.Dec = undefined;//赤纬+-90
+	this.pos = new pos3();//三维坐标
+
+	this.set = function (a,b)
+	{
+		this.RA = a;
+		this.Dec = b;
+		this.pos = R_pos ( mat299(R_z(this.RA*15/180*pi),R_y(-this.Dec/180*pi)),new pos3(1,0,0) );
+	}//从赤经赤纬设置
+
+	this.set_pos = function (pos)
+	{
+		this.pos = pos;
+		this.RA = atan2(pos.y,pos.x)*180/pi/15;
+		if (this.RA<0) this.RA+=24;
+		this.Dec = asin(pos.z)*180/pi;
+	}//从三维坐标设置
+
+	this.to_chidao = function ()
+	{
+		return this;
+	}//转为赤道坐标
+
+	this.to_diping = function ()
+	{
+		var a = new diping();
+		a.set_pos( R_pos ( cam.chidao_to_diping ,this.pos ) );
+		return a;
+	}//转为地平坐标
+
+	this.to_cdcam = function ()
+	{
+		return R_pos ( cam.cd_to_cdcam ,this.pos );
+	}//转为赤道仪相机坐标
+
+	this.to_dpcam = function ()
+	{
+		return R_pos ( cam.cd_to_dpcam ,this.pos );
+	}//转为地平仪相机坐标
+}
+
+function diping()
+{
+	this.A = undefined;//方位角360
+	this.h = undefined;//高度角+-90
+	this.pos = new pos3();//三维坐标
+
+	this.set = function (a,b)
+	{
+		this.A = a;
+		this.h = b;
+		this.pos = R_pos ( mat299(R_z(-this.A/180*pi),R_y(-this.h/180*pi)),new pos3(1,0,0) );
+	}//从方位角高度角设置
+
+	this.set_pos = function (pos)
+	{
+		this.pos = pos;
+		this.A = -atan2(pos.y,pos.x)*180/pi;
+		if (this.A<0) this.A+=360;
+		this.h = asin(pos.z)*180/pi;
+		if(this.h==-90)this.h+=0.00001;
+	}//从三维坐标设置
+
+	this.to_chidao = function ()
+	{
+		var a = new chidao();
+		a.set_pos( R_pos ( cam.diping_to_chidao ,this.pos ) );
+		return a;
+	}//转为赤道坐标
+
+	this.to_diping = function ()
+	{
+		return this;
+	}//转为地平坐标
+
+	this.to_cdcam = function ()
+	{
+		return R_pos ( cam.dp_to_cdcam ,this.pos );
+	}//转为赤道仪相机坐标
+
+	this.to_dpcam = function ()
+	{
+		return R_pos ( cam.dp_to_dpcam ,this.pos );
+	}//转为地平仪相机坐标
+
+}
+
+function star()
+{
+	this.chidao = new chidao();
+	this.mag=undefined;
+	this.name_en=undefined;
+	this.name=undefined;
+	this.color=new Array();
+}//恒星
+
+function planet()
+{
+	this.chidao = new chidao();
+	this.mag=undefined;
+	this.name=undefined;
+	this.color = new Array();
+}//行星
+
+function star_draw(n,i,x,y,r,color)
+{
+	this.n = n;
+	this.i = i;
+	this.x = x;
+	this.y = y;
+	this.r = r;
+	this.color = color;
+}//星体画图数据
+
+var star_draw_data = new Array();
+
+var obj = new Object();
+
+obj.stars = new Array();
+
+obj.planets = new Array();
+
+for (i=0;i<9;i++)
+{
+	planet1=new planet();
+	planet1.mag=mags[i];
+	planet1.name=name1s[i];
+	planet1.color=new Array(color_datas[i*3+0],color_datas[3*i+1],color_datas[3*i+2]);
+	obj.planets.push(planet1);
+}
+
+for (i=0;i<10000;i++)
+{
+	star1=new star();
+	star1.chidao.set(RD[i*2],RD[i*2+1]);
+	star1.mag=mag[i];
+	star1.name_en=name2[i];
+	star1.name=name1[i];
+	star1.color=new Array (
+			color_data[3*color_star[i]+0],
+			color_data[3*color_star[i]+1],
+			color_data[3*color_star[i]+2]
+				);
+	obj.stars.push(star1);
+}
+
+function con()
+{
+	this.chidao = new chidao();
+	this.name = new Array();
+}//星座
+
+function sign()
+{
+	this.diping = new diping();
+	this.name = new Array();
+}//方位标志
+
+var cons = new Array();
+
+var signs = new Array();
+
+for (var j=0;j<88;j++){
+	var con1=new con();
+	con1.chidao.set(condata[2*j+1],condata[2*j+0]);
+	con1.name[0]=conname[4*j+0];
+	con1.name[1]=conname[4*j+1];
+	con1.name[2]=conname[4*j+2];
+	con1.name[3]=conname[4*j+3];
+	cons.push( con1 );
+}
+
+for (var j=0;j<6;j++){
+	var sign1=new sign();
+	sign1.diping.set(fangxiangdata[2*j+0],fangxiangdata[2*j+1]);
+	sign1.name=fangxiangname[j];
+	signs.push( sign1 );
+}
+
+
+function camera()
+{
+	this.mat = undefined;//三维转相机坐标矩阵
+	this.chidao_to_diping = undefined;//赤道转地平矩阵
+	this.diping_to_chidao = undefined;//地平转赤道矩阵
+	this.cd_to_cdcam = undefined;//赤道转赤道仪相机坐标矩阵
+	this.cd_to_dpcam = undefined;//赤道转地平仪相机坐标矩阵
+	this.dp_to_cdcam = undefined;//地平转赤道仪相机坐标矩阵
+	this.dp_to_dpcam = undefined;//地平转地平仪相机坐标矩阵
+
+	this.cd = new chidao();//相机中心赤道坐标
+	this.dp = new diping();//相机中心地平坐标
+	this.rot = new rot();//相机旋转角
+
+	this.flag = 0;//赤道仪0，地平仪1
+	this.projection = 0;//投影方式
+
+	//相机部分：
+	this.cal_mat = function ()
+	{
+		this.chidao_to_diping = mat299(R_y((90-time.lat)/180*pi),R_z((12-time.LST)*15/180*pi));
+		this.diping_to_chidao = mat299(R_z((time.LST-12)*15/180*pi),R_y((time.lat-90)/180*pi));
+		this.cd_to_cdcam = this.mat;
+		this.cd_to_dpcam = mat299(this.mat,this.chidao_to_diping);
+		this.dp_to_cdcam = mat299(this.mat,this.diping_to_chidao);
+		this.dp_to_dpcam = this.mat;
+	}//计算所有旋转矩阵
+	this.set_rot = function (a,b,c,flag1) //flag=1，地平，flag=0，赤道
+	{
+		this.flag = flag1;
+		if(this.flag==0)
 		{
-			x=R0[0]*z[0]+R0[1]*z[1]+R0[2]*z[2];
-			y=R0[3]*z[0]+R0[4]*z[1]+R0[5]*z[2];
-			x=(x/l*size*z1+sizex)/2;
-			y=(y/l*size*z1+sizey)/2;
-			if (be==0)
-			{
-				be=1;
-				cxt.moveTo(x,y);
-			}else{
-				cxt.lineTo(x,y);
-			}
+			this.rot.a=-a*15/180*pi;
+			this.rot.b=(b-90)/180*pi;
+			this.rot.c=(c+90)/180*pi;
+		}
+		if(this.flag==1)
+		{
+			this.rot.a=a/180*pi;
+			this.rot.b=(b-90)/180*pi;
+			this.rot.c=(c+90)/180*pi;
+		}
+		this.mat = mat399(R_z(this.rot.c),R_y(this.rot.b),R_z(this.rot.a));
+	}//计算相机旋转矩阵
+	this.set_live = function (a,b,c) //flag=1，地平，flag=0，赤道
+	{
+		this.flag=1;
+		var a1=a/180*pi;
+		var b1=b/180*pi;
+		var c1=c/180*pi;
+		var mat1=new Array(0,-1,0,-1,0,0,0,0,-1);
+		var mat2=mat399(R_x(-c1),R_y(b1),R_z(-a1));
+		this.mat= mat299(mat1,mat2);
+	}//计算实时方位旋转矩阵
+	this.getabc = function (r)
+	{
+		var a,b,c;
+		var a1,b1,c1;
+		b=asin(r[8]);
+		if(abs(r[8])>0.999999999999)
+		{
+			a=atan2(-r[0],r[3]);
+			c=0;
 		}else{
-		be=0;
+			c=atan2(r[2],-r[5]);
+			a=atan2(-r[7],r[6]);
 		}
-}
-
-var condata1= new Array(88*3);
-{
-	for (var i=0;i<88;i++){
-		var a=condata[2*i+1]*15/180*pi;
-		var b=condata[2*i+0]/180*pi;
-		condata1[3*i+0]=cos(a)*cos(b);
-		condata1[3*i+1]=sin(a)*cos(b);
-		condata1[3*i+2]=sin(b);
-	}
-}
-
-function drawconname()
-{
-	cxt.font="20px 黑体";
-	cxt.fillStyle=colordata[6];
-	for (var j=0;j<88;j++){
-		z=new Array(condata1[3*j+0],condata1[3*j+1],condata1[3*j+2])
-		l=1+R[6]*z[0]+R[7]*z[1]+R[8]*z[2];
-		if (l>z2-0.1)
+		var out = new rot();
+		out.set(a,b,c);
+		return out;
+	}//从矩阵得到旋转角
+	this.get_rot = function(flag)
+	{
+		var out = new rot();
+		if(flag==0)if(this.flag==0)
+			out = this.getabc(this.mat);
+		if(flag==0)if(this.flag==1)
+			out = this.getabc(this.cd_to_dpcam);
+		if(flag==1)if(this.flag==0)
+			out = this.getabc(this.dp_to_cdcam);
+		if(flag==1)if(this.flag==1)
+			out = this.getabc(this.mat);
+		out.a=out.a/pi*180;
+		out.b=out.b/pi*180;
+		out.c=out.c/pi*180;
+		if(out.a<0)out.a+=360;
+		if(out.c<-180)out.c+=360;
+		if(out.c>180)out.c-=360;
+		if(flag==0)out.a=-out.a/15+24;
+		return out;
+	}//从矩阵得到相机坐标
+	this.set_from_page = function (flag)
+	{
+		if (flag==0)
 		{
-			x=R[0]*z[0]+R[1]*z[1]+R[2]*z[2];
-			y=R[3]*z[0]+R[4]*z[1]+R[5]*z[2];
-			x=(x/l*size*z1+sizex)/2;
-			y=(y/l*size*z1+sizey)/2;
-			cxt.fillText(conname[4*j+2],x-10*conname[4*j+2].length,y+10);
+			this.cd.set(page.RA,page.Dec);
+			this.set_rot(this.cd.RA,this.cd.Dec,0,0);
+			this.cal_mat();
+			this.dp = this.cd.to_diping();
 		}
-	}
-
+		if (flag==1)
+		{
+			this.dp.set(page.A,page.h);
+			this.set_rot(this.dp.A,this.dp.h,0,1);
+			this.cal_mat();
+			this.cd = this.dp.to_chidao();
+		}
+		if (flag==2)
+		{
+			cam.set_live(live.rot[0],live.rot[1],live.rot[2]);
+			this.cal_mat();
+			this.dp.set_pos(new pos3(this.mat[6],this.mat[7],this.mat[8]))
+			this.cd = this.dp.to_chidao();
+		}
+	}//从页面加载相机
+	//投影部分
+	this.point = function (a)
+	{
+		switch(this.flag)
+		{
+			case 0:
+				return a.to_cdcam();
+			break;	
+			case 1:
+				return a.to_dpcam();
+			break;	
+		}
+	}//点坐标到相机坐标
+	this.project = function (p)
+	{
+		switch(this.projection)
+		{
+			case 0://球极投影
+				return new pos2(p.x/(1+p.z),p.y/(1+p.z));
+			break;	
+			case 1://透视投影
+				return new pos2(p.x/p.z,p.y/p.z);
+			break;	
+		}
+	}//相机坐标到像面坐标
+	this.project1 = function (p)
+	{
+		return new pos2(p.x*page.size*z1/2+page.sizex/2,p.y*page.size*z1/2+page.sizey/2);
+	}//像面坐标到画布坐标
+	this.cal = function (a,a1,a2)
+	{
+		var out = new Object();
+		var za = this.point(a);
+		var l = za.z;
+		if (l<a1)
+		{
+			out.get = 0;
+			return out;
+		}
+		var zb=cam.project1(cam.project(za));
+		if (a2)
+			if (zb.x<page.sizex&&zb.x>0&&zb.y<page.sizey&&zb.y>0)
+			{}else{out.get = 0;return out;}
+		out.x=zb.x;out.y=zb.y;out.get=1;
+		return out;
+	}//点到画布坐标
 }
 
-var color_datas= new Array(1.0, 0.98, 0.97,1.0, 0.964, 0.914,1., 0.96, 0.876,1., 0.768, 0.504 ,1., 0.983, 0.934,1.0, 0.955, 0.858,0.837, 0.959, 1.,0.44, 0.582, 1.,1., 0.986, 0.968);
-var mags= new Array(-8,-1,-2,-1,-2,-1,5,5,-4);
-var rs= new Array(0.25,10/60,20/60,15/60,25/60,15/60,5/60,5/60,0.25);
-var name1s=new Array('太阳','水星','金星','火星','木星','土星','天王星','海王星','月亮');
-var starlogs= new Array(36);
-var star_ns;
-ss=new Array(27);
-
-function findstars()
+function timer1()
 {
-	starlogs= new Array(36);
-	star_ns=0;
-	for (var i=0;i<9;i++){
-		c=mags[i];
-		a=ss[3*i+0];
-		b=ss[3*i+1];
-		z=new Array(cos(a)*cos(b),sin(a)*cos(b),sin(b));
-		l=1+R[6]*z[0]+R[7]*z[1]+R[8]*z[2];
-		if (l>z2)
+	this.fps = undefined;//帧率
+	this.dtime = undefined;//每帧时间
+
+	this.speed_array = new Array(0,1/86400,1/8640,1/1440,1/144,1/24,1/2.4,1,7,30,0,-30,-7,-1,-1/2.4,-1/24,-1/144,-1/1440,-1/8640,-1/86400);
+	this.going = 0;
+	this.speed = 0;
+
+	this.now = function()
+	{
+		time.change_to_now();
+	}//设置到当前时间
+
+	this.go = function ()
+	{
+		var dtime2,dtime3;
+		if (this.going==0)
+			return;
+		if (opt.lianxu.value==1)
 		{
-			x=R[0]*z[0]+R[1]*z[1]+R[2]*z[2];
-			y=R[3]*z[0]+R[4]*z[1]+R[5]*z[2];
-			x=(x/l*size*z1+sizex)/2;
-			y=(y/l*size*z1+sizey)/2;
-			if (x<sizex&&x>0&&y<sizey&&y>0)
+			if(this.dtime>0.02)
 			{
-				r=starmag(c);
-				if (r>10)r=10+(r-10)/3;
-				if (i*(i-8)==0&&fov<30)r=size*sqrt(2)*rs[i]/(2*fov);
-				if (fov<30)r=size*sqrt(2)*rs[i]/(2*fov);
-				rgb[0]=color_datas[3*i+0];
-				rgb[1]=color_datas[3*i+1];
-				rgb[2]=color_datas[3*i+2];
-				if(i!=8)drawstar(x+size1,y+size1,r,rgb);
-				starlogs[4*star_ns+0]=i;
-				starlogs[4*star_ns+1]=x;
-				starlogs[4*star_ns+2]=y;
-				starlogs[4*star_ns+3]=r;
-				star_ns++;
+				dtime2=this.dtime*1500;
+				dtime3=this.dtime;
+			}
+			else
+			{
+				dtime2=20;
+				dtime3=0.02;
 			}
 		}
-	}
-}
-
-function drawmoon()
-{	var as,bs,am,bm,zs,zm,ls,lm,xm,xs,ym,ys,ra1,ea,r,xa1,ya1,xa2,ya2,xs2,ys2,k2,k1,k3,xa3,ya3,t1,t2,t3,xm1,ym1,tha,xa,ya;
-	am=ss[24];bm=ss[25];
-	zm=new Array(cos(am)*cos(bm),sin(am)*cos(bm),sin(bm));
-	lm=1+R[6]*zm[0]+R[7]*zm[1]+R[8]*zm[2];
-	xm=R[0]*zm[0]+R[1]*zm[1]+R[2]*zm[2];
-	ym=R[3]*zm[0]+R[4]*zm[1]+R[5]*zm[2];
-	as=ss[0];bs=ss[1];
-	zs=new Array(cos(as)*cos(bs),sin(as)*cos(bs),sin(bs));
-	ls=1+R[6]*zs[0]+R[7]*zs[1]+R[8]*zs[2];
-	xs=R[0]*zs[0]+R[1]*zs[1]+R[2]*zs[2];
-	ys=R[3]*zs[0]+R[4]*zs[1]+R[5]*zs[2];
-	ra1=sqrt((zs[0]-zm[0])*(zs[0]-zm[0])+(zs[1]-zm[1])*(zs[1]-zm[1])+(zs[2]-zm[2])*(zs[2]-zm[2]));
-	ea=-cos(acos(ra1/2)*2);
-	xm/=lm;ym/=lm;xs/=ls;ys/=ls;
-	r=starmag(mags[8]);
-	if (r>10)r=10+(r-10)/3;
-	if (fov<30)r=size*sqrt(2)*rs[8]/(2*fov);
-
-	xa1=(xm+xs)/2;
-	ya1=(ym+ys)/2;
-	ra1=-1/(xs*xs+ys*ys);
-	xs2=xs*ra1;
-	ys2=ys*ra1;
-	xa2=(xs+xs2)/2;
-	ya2=(ys+ys2)/2;
-	k2=(ys2-ys)/(xs2-xs);
-	k1=(ys-ym)/(xs-xm);
-	k1=-1/k1;
-	k2=-1/k2;
-	xa3=(ya1-ya2+k2*xa2-k1*xa1)/(k2-k1);
-	ya3=ya2+k2*(xa3-xa2);
-	k3=-1/((ya3-ym)/(xa3-xm));
-	t1=atan2(ys-ym,xs-xm);
-	t2=atan2(ym-ys2,xm-xs2);
-	t3=atan(k3);
-	if(t3>pi)t3=t3-2*pi;
-	if(t2<t1){var t0=t2;t2=t1;t1=t0}
-	if(t2-t1<pi)if(t3>t2||t3<t1)t3+=pi;
-	if(t2-t1>pi)if(t3<t2&&t3>t1)t3+=pi;
-	if(t3>pi)t3=t3-2*pi;
-
-	xm1=(xm*size*z1+sizex)/2;
-	ym1=(ym*size*z1+sizey)/2;
-
-	cxt.strokeStyle=colordata[11];
-	cxt.fillStyle=colordata[11];
-	cxt.beginPath();
-	cxt.lineWidth=0.1;
-
-	for (var i=0;i<100;i++){
-		ya=ym1+r*sin(i/100*2*pi);
-		xa=xm1+r*cos(i/100*2*pi);
-		if(i==0)cxt.moveTo(xa,ya);
-		cxt.lineTo(xa,ya);
-	}
-
-	cxt.closePath();
-	cxt.fill();
-	cxt.stroke();
-	cxt.strokeStyle=colordata[10];
-	cxt.fillStyle=colordata[10];
-	cxt.beginPath();
-	cxt.lineWidth=0.1;
-
-	tha=t3+pi/2;
-	for (var i=0;i<50;i++){
-		ya=ym1+r*sin(i/100*2*pi+tha+pi);
-		xa=xm1+r*cos(i/100*2*pi+tha+pi);
-		if(i==0)cxt.moveTo(xa,ya);
-		cxt.lineTo(xa,ya);
-	}
-	for (var i=0;i<50;i++){
-		ya=ym1+r*(cos(i/100*2*pi)*sin(tha)-ea*sin(i/100*2*pi)*cos(tha));
-		xa=xm1+r*(cos(i/100*2*pi)*cos(tha)+ea*sin(i/100*2*pi)*sin(tha));
-		cxt.lineTo(xa,ya);
-	}
-
-	cxt.closePath();
-	cxt.fill();
-	cxt.stroke();
-
-}
-
-function starnames()
-{
-	cxt.font="15px 宋体";
-	cxt.fillStyle=colordata[4];
-	for (var i=0;i<star_ns;i++){
-		cxt.fillText(name1s[starlogs[4*i+0]],starlogs[4*i+1]+starlogs[4*i+3]+2,starlogs[4*i+2]+starlogs[4*i+3]);
-	}
-}
-
-function choosestars(x,y)
-{
-	for (var i=0;i<star_ns;i++){
-		var x1=starlogs[4*i+1];
-		var y1=starlogs[4*i+2];
-		var r=starlogs[4*i+3];
-		var r1=5;
-		if (r>r1)
-			r1=r;
-		if (sqrt((x1-x)*(x1-x)+(y1-y)*(y1-y))<r1)
+		else
 		{
-			cxt.font="25px 黑体";
-			cxt.fillStyle=colordata[5];
-			cxt.fillText(name1s[starlogs[4*i+0]],name_x,name_y);
-			cxt.font="15px 宋体";
-			cxt.fillStyle=colordata[5];
-			cxt.fillText(name1s[starlogs[4*i+0]],x1+r+2,y1+r);
-			name_y+=35;
-		}		
+			dtime2=1000;
+			dtime3=1;
+		}
+		timego0=setTimeout("timer.go();",dtime2);
+		time.change_time(this.speed_array[this.speed]*dtime3);
+		begin();
+	}//时间运行
+	this.changespeed = function (a)
+	{
+		if(this.speed+a!=10) this.speed=(this.speed+20+a)%20;
+		if (this.going==0) 
+		{
+			this.going=1;
+			this.go();
+		}
+	}//改变速度
+	this.stop = function ()
+	{
+		this.going=0;
+		this.speed=0;
+	}//停止
+
+	this.t1 = undefined;
+	this.t2 = undefined;
+	
+	this.now1 = function ()
+	{
+		var myDate = new Date();
+		var time10=myDate.getMilliseconds();
+		var time11=myDate.getMinutes();
+		var time12=myDate.getSeconds(); 
+		return time11*60+time12+time10/1000;
+	}
+	this.timerstart = function()
+	{
+		this.t1=this.now1();
+	}//计时开始
+	this.timerend = function()
+	{
+		this.t2=this.now1();
+		this.dtime = this.t2-this.t1;
+		this.fps = floor(1/(this.t2-this.t1));
+	}//计时结束
+}
+
+function orientationHandler(event) 
+{
+	live.rot=[event.alpha,event.beta,event.gamma];
+}
+
+
+function live1()
+{
+	this.rot=new Array(3);//实时旋转角度，RPY
+
+	this.setdirection = function() 
+	{
+		if (window.DeviceOrientationEvent) 
+		{
+			window.addEventListener("deviceorientationabsolute", orientationHandler, false);
+		} 
+	}
+	this.timedCount = function ()
+	{
+		directioning=setTimeout("live.timedCount();",timer.dtime*1500);
+		this.setdirection();
+		begin();
+	}
+	this.live = function ()
+	{
+		opt.isdirection.change();
+		opt.flag.set(1);
+		if( opt.isdirection.value )
+		{
+			this.timedCount();
+
+		}
+		else{
+			clearTimeout(directioning);
+			window.removeEventListener("deviceorientation", orientationHandler, false);
+			begin();
+		}
 	}
 }
 
-
-star = function ()
+function page_data()
 {
-	clear();
-	if(isdirection)
-		Rmat1();
-	if (flag==1)
-		findstar(Rmat(flag,x2,y2,o));
-	if (flag==0)
-		findstar(Rmat(flag,x1,y1,o));
-	cxt.putImageData(imgData,-size1,-size1);
+	this.size=800;
+	this.sizex=800;
+	this.sizey=800;
+	this.star_size1=0;
+	this.star_size2=0;
+	this.fov=60;
 
-	if (gird_eq||gird_dp||gird_ec||fangwei)
-		drawline();
+	this.RA = undefined;
+	this.Dec = undefined;
+	this.cdrot = 0;
+	this.A = undefined;
+	this.h = undefined;
+	this.dprot = 0;
+	this.update_from_cam = function ()
+	{
+		this.RA=cam.cd.RA;
+		this.Dec=cam.cd.Dec;
+		this.A=cam.dp.A;
+		this.h=cam.dp.h;
+		document.getElementById('RA').value=Math.floor(this.RA*100)/100;
+		document.getElementById('Dec').value=Math.floor(Math.abs(this.Dec)*10)/10*sgn(this.Dec);
+		document.getElementById('A').value=Math.floor(this.A*10)/10;
+		document.getElementById('h').value=Math.floor(Math.abs(this.h)*10)/10*sgn(this.h);
+	}//从相机更新坐标
+	this.update_data = function ()
+	{
+		document.getElementById('RA').value=Math.floor(this.RA*100)/100;
+		document.getElementById('Dec').value=Math.floor(Math.abs(this.Dec)*10)/10*sgn(this.Dec);
+		document.getElementById('A').value=Math.floor(this.A*10)/10;
+		document.getElementById('h').value=Math.floor(Math.abs(this.h)*10)/10*sgn(this.h);
+		document.getElementById('fov').value=Math.floor(this.fov*10)/10;
+		document.getElementById('sizex').value=this.sizex;
+		document.getElementById('sizey').value=this.sizey;
+		document.getElementById('ss1').value=this.star_size1;
+		document.getElementById('ss2').value=this.star_size2;
+	}//更新到页面
+	this.load_from_page = function()
+	{
+		this.star_size1=document.getElementById('ss1').value*1;
+		this.star_size2=document.getElementById('ss2').value*1;
 
-	if(con_line)
-		drawline2();
-	if(con_name)
-		drawconname();
-	if(planet)
-		drawmoon();
-	if(star_name)
-		starname();
+		if (sizex!=document.getElementById('sizex').value*1||sizey!=document.getElementById('sizey').value*1)
+		{
+			this.sizex=document.getElementById('sizex').value*1;
+			this.sizey=document.getElementById('sizey').value*1;
 
-	if (fangwei&&flag)
-		drawfangwei();
+			if (this.sizex>2000)
+				this.sizex=2000;
+			if (this.sizey>2000)
+				this.sizey=2000;
+			if (this.sizex/this.sizey>2)
+				this.sizex=this.sizey*2;
+			if (this.sizey/this.sizex>2)
+				this.sizey=this.sizex*2;
+			this.sizex<this.sizey?this.size=this.sizey:this.size=this.sizex;
+			size1=100;
+			size0x=this.sizex+2*size1;
+			size0y=this.sizey+2*size1;
+			document.getElementById('myCanvas').width=this.sizex;
+			document.getElementById('myCanvas').height=this.sizey;
+			imgData=cxt.createImageData(size0x,size0y);	
+		}
+		this.RA=document.getElementById('RA').value*1;
+		this.Dec=document.getElementById('Dec').value*1;
+		this.A=document.getElementById('A').value*1;
+		this.h=document.getElementById('h').value*1;
+		this.fov=document.getElementById('fov').value*1;
+		this.update_data();
+	}//从页面加载数据
+	this.data_change = function (dRA,dDec,dA,dh,dfov)
+	{
+		var temp;
+		temp=page.h+dh;
+		if(temp>89.9999)temp=89.9999;
+		if(temp<-89.9999)temp=-89.9999;
+		page.h=temp;
+		
+		temp=page.Dec+dDec;
+		if(temp>89.9999)temp=89.9999;
+		if(temp<-89.9999)temp=-89.9999;
+		page.Dec=temp;
 
-	logo();
+		temp=page.RA*15+dRA;
+		while(temp>360)temp-=360;
+		while(temp<0)temp+=360;
+		page.RA=temp/15;
+
+		temp=page.A+dA;
+		while(temp>360)temp-=360;
+		while(temp<0)temp+=360;
+		page.A=temp;
+
+		temp=page.fov+dfov;
+		if (temp<10)temp=10;
+		if (temp>135)temp=135;
+		while(temp>360)temp-=360;
+		page.fov=temp;
+		
+		this.update_data();
+	}//更改坐标
+	this.random = function ()
+	{
+		opt.flag.set(0);
+		opt.gird_dp.set(0);
+		opt.gird_eq.set(0);
+		opt.gird_ec.set(0);
+		opt.fangwei.set(0);
+		opt.con_line.set(0);
+		opt.con_name.set(0);
+		opt.planet.set(0);
+		opt.star_name.set(0);
+		opt.changecolor.set(1);
+		setcolor();
+		this.RA=Math.random()*24;
+		this.Dec=(acos(Math.random()*2-1)/pi-0.5)*180;
+		
+		document.getElementById('RA').value="";
+		document.getElementById('Dec').value="";
+		document.getElementById('h').value="";
+		document.getElementById('A').value="";
+	}//随机
 }
 
+function option()
+{
+	this.size = undefined;
+	this.value = undefined;
+	this.text = undefined; 
+	this.text_change = undefined;
+	this.text_array = new Array( ); 
+	this.id = undefined;	
 
-})();
+	this.set = function (a)
+	{	
+		this.value=a;	
+		while(this.value>=this.size)
+			this.value=this.value-this.size;
+
+		if(this.text_change==1)
+		{
+			this.text=this.text_array[this.value];
+			document.getElementById(this.id).value=this.text;
+		}else{
+			this.text=this.text_array[0];
+		}
+		begin();
+	}//设置
+	this.change = function()
+	{
+		this.set(this.value+=1);
+	}//更改
+	this.init = function (a,b,c,d,e)
+	{	
+		this.size=b;
+		this.text_change=c;
+		this.text_array=d;
+		this.id=e
+		this.value=a;
+		if(this.text_change==1)
+		{
+			this.text=this.text_array[this.value];
+			document.getElementById(this.id).value=this.text;
+		}else{
+			this.text=this.text_array[0];
+		}
+	}//初始化
+}
+
+var opt=new Object();
+
+opt.gird_dp=new option();
+opt.gird_eq=new option();
+opt.gird_ec=new option();
+opt.fangwei=new option();
+opt.con_line=new option();
+opt.con_name=new option();
+opt.planet=new option();
+opt.star_name=new option();
+opt.flag=new option();
+opt.lianxu=new option();
+opt.changecolor=new option();
+opt.isdirection=new option();
+
+opt.gird_dp.init(0,2,0,new Array("地平坐标"),"");
+opt.gird_eq.init(0,2,0,new Array("赤道坐标"),"");
+opt.gird_ec.init(1,2,0,new Array("黄道"),"");
+opt.fangwei.init(1,2,0,new Array("方位"),"");
+opt.con_line.init(1,2,0,new Array("星座连线"),"");
+opt.con_name.init(1,2,0,new Array("星座名称"),"");
+opt.planet.init(1,2,0,new Array("行星"),"");
+opt.star_name.init(1,2,0,new Array("星名"),"");
+opt.flag.init(1,2,1,new Array("赤道仪","地平仪"),"change");
+opt.lianxu.init(1,2,1,new Array("时间连续","时间间断"),"changelianxu");
+opt.changecolor.init(0,3,1,new Array("大气","普通","黑白"),"changecolor");
+opt.isdirection.init(0,2,0,new Array("实时方位"),"");
+
+
+function disabledMouseWheel() {  
+  if (document.addEventListener) {  
+    document.addEventListener('DOMMouseScroll', scrollFunc, false);  
+  }//W3C  
+  window.onmousewheel = document.onmousewheel = scrollFunc;//IE/Opera/Chrome  
+}  
+function scrollFunc(evt) {  
+  return false;  
+}  
+window.onload=disabledMouseWheel; 
+
+function touch(){
+	document.onselectstart = new Function('event.returnValue=false;');
+	this.beginmove=0;
+	this.X0=0;
+	this.Y0=0;
+	this.X1=0;
+	this.Y1=0;
+	this.X2=0;
+	this.Y2=0;
+	this.dX=0;
+	this.dY=0;
+	this.click1 = function (x,y)
+	{
+		this.X0 = x;this.Y0 = y;
+		this.X2 = x;this.Y2 = y;
+		this.beginmove=1;
+	}
+	this.clickend = function ()
+	{
+
+		if(this.X2==this.X0&&this.Y2==this.Y0)
+		{
+			choosestar(this.X2,this.Y2);
+		}
+		this.beginmove=0;
+	}
+	this.click2 = function (x,y)
+	{
+		if (this.beginmove==0)return false;
+		this.dX = x-this.X2; this.dY = y-this.Y2;
+		this.X2 = x; this.Y2 = y;
+		this.dX=this.dX/page.size*sqrt(2)*page.fov;
+		this.dY=this.dY/page.size*sqrt(2)*page.fov;
+		if (opt.flag.value==1)
+			page.data_change(0,0,-this.dX/cos(page.h/180*pi),this.dY,0);
+		if (opt.flag.value==0)
+			page.data_change(this.dX/cos(page.Dec/180*pi),this.dY,0,0,0);
+		begin();
+	}
+	this.click5 = function (dfov)
+	{
+		dfov=floor(dfov/Math.abs(dfov)*5+0.1);
+		page.data_change(0,0,0,0,-dfov);
+		begin();
+	}
+	this.click = function(event,n)
+	{
+		if(n==1)this.click1(event.offsetX,event.offsetY);
+		if(n==2)this.click2(event.offsetX,event.offsetY);
+		if(n==5)this.click5(event.wheelDelta);
+	}
+	this.touch = function(event,n)
+	{
+		if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
+		if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
+		if(n==4)this.click4(event.touches[0].clientX,event.touches[0].clientY);
+	}
+	this.move = function (i)
+	{
+		var dx=0,dy=0,dfov=0;
+		if(i==0);
+		if(i==1)dx=-5;
+		if(i==2)dy=5;
+		if(i==3)dx=+5;
+		if(i==4)dy=-5;
+		if(i==5)dfov=-5;
+		if(i==6)dfov=+5;
+		if(opt.flag.value==0){page.data_change(-dx,dy,0,0,dfov);}
+		if(opt.flag.value==1){page.data_change(0,0,dx,dy,dfov);}
+		begin();
+	}
+}
+
+begin = function ()
+{
+	z1=cot(page.fov/360*pi)*sqrt(2);
+	z2=cos(page.fov/180*pi)+1;
+	name_x=10,name_y=10+25;
+
+	cam.set_from_page(opt.isdirection.value?2:opt.flag.value);
+	page.update_from_cam();
+
+	timer.timerstart();
+	star();
+	timer.timerend();
+	document.getElementById('fps').value = timer.fps;
+}
+
+optiondisplay=1;
+var time=new timenew();
+var timer = new timer1();
+var touch=new touch();
+var cam = new camera();
+var page = new page_data();
+var live = new live1();
+
+Canvas_init('myCanvas');
+time.init();
+page.load_from_page();
+cam.set_from_page(1);
+time.get_sun_h();
