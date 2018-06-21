@@ -718,7 +718,7 @@ function live1()
 	{
 		if (window.DeviceOrientationEvent) 
 		{
-			window.addEventListener("deviceorientationabsolute", orientationHandler, false);
+			window.addEventListener(liveapi, orientationHandler, false);
 		} 
 	}
 	this.timedCount = function ()
