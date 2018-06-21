@@ -1,0 +1,121 @@
+
+
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+
+<input type="submit" name="submit" id="live" onclick="live();" value="ok" style="width: 85px; height: 60px;" />
+<font size="300">
+<br>
+<input type="text" name="x" id="x1" value=0  style="width:500px; height: 100px; font-size:90; text-align: right;" />
+<br>
+<input type="text" name="y" id="y1" value=0  style="width:500px; height: 100px; font-size:90; text-align: right;" />
+<br>
+<input type="text" name="z" id="z1" value=0  style="width:500px; height: 100px; font-size:90; text-align: right;" />
+<br><br><br>
+<input type="text" name="x" id="x" value=0  style="width:500px; height: 100px; font-size:90; text-align: right;" />
+<br>
+<input type="text" name="y" id="y" value=0  style="width:500px; height: 100px; font-size:90; text-align: right;" />
+<br>
+<input type="text" name="z" id="z" value=0  style="width:500px; height: 100px; font-size:90; text-align: right;" />
+<br>
+</font>
+<script language=javascript>
+function int2(v) { return Math.floor(v); }
+function abs(x)  { return Math.abs(x);   }
+function sin(x)  { return Math.sin(x);   }
+function cos(x)  { return Math.cos(x);   }
+function tan(x)  { return Math.tan(x);   }
+function cot(x)  { return 1/tan(x);      }
+function asin(x) { return Math.asin(x);  }
+function acos(x) { return Math.acos(x);  }
+function atan(x) { return Math.atan(x);  }
+function atan2(y,x){ return Math.atan2(y,x); }
+function sgn(x)
+{
+	if(x>0)return 1;
+	if(x<0)return -1;
+	if(x==0)return 0;
+}
+function int(v) { return int2(abs(v))*sgn(v); }
+
+var pi=3.14159265358979323;
+
+var isdirection=0;
+
+function Rmat1()
+{
+	var a=direction_current[0]/180*pi;
+	var b=direction_current[1]/180*pi;
+	var c=direction_current[2]/180*pi;
+	x2=atan2(-cos(a)*sin(c)-sin(a)*sin(b)*cos(c),-sin(a)*sin(c)+cos(a)*sin(b)*cos(c))/pi*180;
+	o=atan2(cos(b)*sin(c),sin(b))/pi*180;
+	y2=-asin(cos(b)*cos(c))/pi*180;
+	if(x2<0)x2+=360;
+	return new pos3(x2,y2,o);
+}
+
+function pos3(x,y,z)
+{
+	this.x=x;
+	this.y=y;
+	this.z=z;
+}
+
+direction_current=new Array(3);
+
+function orientationHandler(event) {
+	console.log(event);
+	direction_current=[event.alpha,event.beta,event.gamma];
+}
+
+function setdirection() {
+	if (window.DeviceOrientationEvent) {
+		window.addEventListener("deviceorientationabsolute", orientationHandler, false);
+	} 
+}
+
+isdirection=0;
+dtime=1;
+timedCount = function ()
+{
+	if (isdirection==0)
+		return;
+	directioning=setTimeout("timedCount();",100);
+	setdirection();
+
+	var a=direction_current[0]/180*pi;
+	var b=direction_current[1]/180*pi;
+	var c=direction_current[2]/180*pi;
+	x2=atan2(-cos(a)*sin(c)-sin(a)*sin(b)*cos(c),-sin(a)*sin(c)+cos(a)*sin(b)*cos(c))/pi*180;
+	z2=atan2(cos(b)*sin(c),sin(b))/pi*180;
+	y2=-asin(cos(b)*cos(c))/pi*180;
+	if(x2<0)x2+=360;
+	document.getElementById('x').value=int(x2);
+	document.getElementById('y').value=int(y2);
+	document.getElementById('z').value=int(z2);
+	document.getElementById('x1').value=int(a*180/pi);
+	document.getElementById('y1').value=int(b*180/pi);
+	document.getElementById('z1').value=int(c*180/pi);
+}
+
+live = function ()
+{
+	isdirection=1-isdirection;
+	timedCount();
+	if (isdirection==0)
+		window.removeEventListener("deviceorientation", orientationHandler, false);
+}
+
+live();
+
+
+
+</script>
+
+
+
+</body>
+</html>
