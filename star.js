@@ -19,6 +19,7 @@ function sgn(x)
 	if(x==0)return 0;
 }
 
+var colordata = new Array();
 
 function mat299(a,b)
 {
@@ -59,11 +60,11 @@ Canvas_init = function (id)
 	cxt=c.getContext("2d");
 	document.getElementById(id).onmousedown = function(){ touch.click(event||window.event,1); }
 	document.getElementById(id).onmousemove = function(){ touch.click(event||window.event,2); }
-	document.getElementById(id).onmouseup = function(){ touch.clickend(); }
-	document.getElementById(id).onmouseout = function(){ touch.clickend(); }
+	document.getElementById(id).onmouseup = function(){ touch.clickend(1); }
+	document.getElementById(id).onmouseout = function(){ touch.clickend(0); }
 	document.getElementById(id).onmousewheel = function(){ touch.click(event||window.event,5); }
 	document.getElementById(id).ontouchstart = function(){ touch.touch(event||window.event,1); }
-	document.getElementById(id).ontouchend = function(){ touch.clickend();}
+	document.getElementById(id).ontouchend = function(){ touch.clickend(1);}
 	document.getElementById(id).ontouchmove = function(){ touch.touch(event||window.event,2); }
 }//画布初始化
 
@@ -132,6 +133,9 @@ function timenew()
 	this.LST = undefined;//地方恒星时
 	this.T = undefined;//儒略千年数
 	this.E = undefined;//黄赤交角
+
+	this.chidao_to_diping = undefined;//赤道转地平矩阵
+	this.diping_to_chidao = undefined;//地平转赤道矩阵
 	
 	this.sun_h = 0;//太阳高度
 
@@ -162,7 +166,7 @@ function timenew()
 			else
 			{
 				var s1=new chidao();
-				var s2=get_sun(time);
+				var s2=get_sun(this);
 				s1.set(s2[0],s2[1]);		
 				this.sun_h = sgn(s1.to_diping().h);
 			}
@@ -174,6 +178,8 @@ function timenew()
 		this.LST=(this.JD1*24.06570982441908+18.697374558+this.lon/15)%24;
 		this.T=this.JD1/36525;
 		this.hcjj(this.T);
+		this.chidao_to_diping = mat299(R_y((90-this.lat)/180*pi),R_z((12-this.LST)*15/180*pi));
+		this.diping_to_chidao = mat299(R_z((this.LST-12)*15/180*pi),R_y((this.lat-90)/180*pi));
 		if(opt.planet.value)
 		{
 			xingxing(this);
@@ -181,7 +187,9 @@ function timenew()
 				obj.planets[i].chidao.set(ss[i*3+0]/15,ss[i*3+1]);
 		}
 		if(this.sun_h != 0)
-			time.get_sun_h();
+		{
+			this.get_sun_h();
+		}
 		this.update_data();
 	}//从JD计算时间数据
 	this.cal_JD = function()
@@ -257,7 +265,7 @@ function timenew()
 	}//从JD加载时间
 	this.change_time = function change_time(dt)
 	{
-		time.load_from_JD(this.JD+dt,this.zone);
+		this.load_from_JD(this.JD+dt,this.zone);
 	}//更改时间
 	this.change_to_now = function ()
 	{
@@ -308,7 +316,7 @@ function chidao()
 	this.to_diping = function ()
 	{
 		var a = new diping();
-		a.set_pos( R_pos ( cam.chidao_to_diping ,this.pos ) );
+		a.set_pos( R_pos ( time.chidao_to_diping ,this.pos ) );
 		return a;
 	}//转为地平坐标
 
@@ -348,7 +356,7 @@ function diping()
 	this.to_chidao = function ()
 	{
 		var a = new chidao();
-		a.set_pos( R_pos ( cam.diping_to_chidao ,this.pos ) );
+		a.set_pos( R_pos ( time.diping_to_chidao ,this.pos ) );
 		return a;
 	}//转为赤道坐标
 
@@ -366,7 +374,21 @@ function diping()
 	{
 		return R_pos ( cam.dp_to_dpcam ,this.pos );
 	}//转为地平仪相机坐标
+}
 
+function huangdao(a)
+{
+	this.a = a;//黄经360
+
+	this.to_chidao = function ()
+	{
+		var a1= this.a/180*pi;
+		var a=atan2( sin(a1)*cos(time.E), cos(a1) );
+		var b=asin ( sin(time.E)*sin(a1) );
+		var cd = new chidao();
+		cd.set(a*12/pi,b*180/pi);
+		return cd;
+	}//转为赤道坐标
 }
 
 function star()
@@ -461,20 +483,27 @@ for (var j=0;j<6;j++){
 	signs.push( sign1 );
 }
 
-
 function camera()
 {
 	this.mat = undefined;//三维转相机坐标矩阵
-	this.chidao_to_diping = undefined;//赤道转地平矩阵
-	this.diping_to_chidao = undefined;//地平转赤道矩阵
 	this.cd_to_cdcam = undefined;//赤道转赤道仪相机坐标矩阵
 	this.cd_to_dpcam = undefined;//赤道转地平仪相机坐标矩阵
 	this.dp_to_cdcam = undefined;//地平转赤道仪相机坐标矩阵
 	this.dp_to_dpcam = undefined;//地平转地平仪相机坐标矩阵
 
+	this.rot = new rot();//相机旋转角
 	this.cd = new chidao();//相机中心赤道坐标
 	this.dp = new diping();//相机中心地平坐标
-	this.rot = new rot();//相机旋转角
+
+	this.fov = undefined;//相机斜对角半视角
+	this.z1 = undefined;//视角投影缩放比例
+	this.z2 = undefined;//视角极限深度
+	this.s0 = undefined;//相机像素长边
+	this.sx = undefined;//相机像素x
+	this.sy = undefined;//相机像素y
+	this.linewidth = undefined;//基本线宽
+	this.ss1 = undefined;//恒星大小1
+	this.ss2 = undefined;//恒星大小2
 
 	this.flag = 0;//赤道仪0，地平仪1
 	this.projection = 0;//投影方式
@@ -482,11 +511,9 @@ function camera()
 	//相机部分：
 	this.cal_mat = function ()
 	{
-		this.chidao_to_diping = mat299(R_y((90-time.lat)/180*pi),R_z((12-time.LST)*15/180*pi));
-		this.diping_to_chidao = mat299(R_z((time.LST-12)*15/180*pi),R_y((time.lat-90)/180*pi));
 		this.cd_to_cdcam = this.mat;
-		this.cd_to_dpcam = mat299(this.mat,this.chidao_to_diping);
-		this.dp_to_cdcam = mat299(this.mat,this.diping_to_chidao);
+		this.cd_to_dpcam = mat299(this.mat,time.chidao_to_diping);
+		this.dp_to_cdcam = mat299(this.mat,time.diping_to_chidao);
 		this.dp_to_dpcam = this.mat;
 	}//计算所有旋转矩阵
 	this.set_rot = function (a,b,c,flag1) //flag=1，地平，flag=0，赤道
@@ -555,6 +582,15 @@ function camera()
 	}//从矩阵得到相机坐标
 	this.set_from_page = function (flag)
 	{
+		this.fov = page.fov;
+		this.z1 = cot(this.fov/360*pi)*sqrt(2);
+		this.z2 = cos(this.fov/180*pi);
+		this.s0 = page.size;
+		this.sx = page.sizex;
+		this.sy = page.sizey;
+		this.ss1 = page.star_size1;
+		this.ss2 = page.star_size2;
+		this.linewidth = this.starmag(this.ss2)[0]/2;
 		if (flag==0)
 		{
 			this.cd.set(page.RA,page.Dec);
@@ -571,7 +607,7 @@ function camera()
 		}
 		if (flag==2)
 		{
-			cam.set_live(live.rot[0],live.rot[1],live.rot[2]);
+			this.set_live(live.rot[0],live.rot[1],live.rot[2]);
 			this.cal_mat();
 			this.dp.set_pos(new pos3(this.mat[6],this.mat[7],this.mat[8]))
 			this.cd = this.dp.to_chidao();
@@ -604,25 +640,42 @@ function camera()
 	}//相机坐标到像面坐标
 	this.project1 = function (p)
 	{
-		return new pos2(p.x*page.size*z1/2+page.sizex/2,p.y*page.size*z1/2+page.sizey/2);
+		return new pos2((p.x*this.z1*this.s0+this.sx)/2,(p.y*this.z1*this.s0+this.sy)/2);
 	}//像面坐标到画布坐标
+	this.starmag = function (c)
+	{
+		var r0;
+		var maga,magb;
+		if (c<1){
+			c=(c-1)/2.5+1;
+		}
+		var maga=this.ss1;
+		magb=Math.pow(0.4,c-this.ss2);
+		if (magb>1){
+			maga=maga*Math.sqrt(magb);
+			magb=1;
+		}
+		r0=maga*this.z1/2*this.s0/1000*sqrt(this.fov/30);
+		var rr=[r0,magb];
+		return rr;
+	}//恒星亮度
 	this.cal = function (a,a1,a2)
 	{
 		var out = new Object();
 		var za = this.point(a);
 		var l = za.z;
-		if (l<a1)
+		if (l<this.z2-a1)
 		{
 			out.get = 0;
 			return out;
 		}
-		var zb=cam.project1(cam.project(za));
+		var zb=this.project1(this.project(za));
 		if (a2)
-			if (zb.x<page.sizex&&zb.x>0&&zb.y<page.sizey&&zb.y>0)
+			if (zb.x<this.sx&&zb.x>0&&zb.y<this.sy&&zb.y>0)
 			{}else{out.get = 0;return out;}
 		out.x=zb.x;out.y=zb.y;out.get=1;
 		return out;
-	}//点到画布坐标
+	}//点到画布坐标，a1范围阈值，a2方形计算
 }
 
 function timer1()
@@ -719,13 +772,21 @@ function live1()
 		if (window.DeviceOrientationEvent) 
 		{
 			window.addEventListener(liveapi, orientationHandler, false);
-		} 
+		}
 	}
 	this.timedCount = function ()
 	{
-		directioning=setTimeout("live.timedCount();",timer.dtime*1500);
-		this.setdirection();
 		begin();
+		var dt = timer.dtime*1000;
+		if (dt<dtmin)
+		{
+			dt = 1;
+		}
+		else
+		{
+			dt = dtmin-dt+1;
+		}
+		directioning=setTimeout("live.timedCount();",dt);
 	}
 	this.live = function ()
 	{
@@ -733,8 +794,8 @@ function live1()
 		opt.flag.set(1);
 		if( opt.isdirection.value )
 		{
+			this.setdirection();
 			this.timedCount();
-
 		}
 		else{
 			clearTimeout(directioning);
@@ -786,7 +847,6 @@ function page_data()
 	{
 		this.star_size1=document.getElementById('ss1').value*1;
 		this.star_size2=document.getElementById('ss2').value*1;
-
 		if (sizex!=document.getElementById('sizex').value*1||sizey!=document.getElementById('sizey').value*1)
 		{
 			this.sizex=document.getElementById('sizex').value*1;
@@ -818,31 +878,31 @@ function page_data()
 	this.data_change = function (dRA,dDec,dA,dh,dfov)
 	{
 		var temp;
-		temp=page.h+dh;
+		temp=this.h+dh;
 		if(temp>89.9999)temp=89.9999;
 		if(temp<-89.9999)temp=-89.9999;
-		page.h=temp;
+		this.h=temp;
 		
-		temp=page.Dec+dDec;
+		temp=this.Dec+dDec;
 		if(temp>89.9999)temp=89.9999;
 		if(temp<-89.9999)temp=-89.9999;
-		page.Dec=temp;
+		this.Dec=temp;
 
-		temp=page.RA*15+dRA;
+		temp=this.RA*15+dRA;
 		while(temp>360)temp-=360;
 		while(temp<0)temp+=360;
-		page.RA=temp/15;
+		this.RA=temp/15;
 
-		temp=page.A+dA;
+		temp=this.A+dA;
 		while(temp>360)temp-=360;
 		while(temp<0)temp+=360;
-		page.A=temp;
+		this.A=temp;
 
-		temp=page.fov+dfov;
+		temp=this.fov+dfov;
 		if (temp<10)temp=10;
 		if (temp>135)temp=135;
 		while(temp>360)temp-=360;
-		page.fov=temp;
+		this.fov=temp;
 		
 		this.update_data();
 	}//更改坐标
@@ -933,8 +993,8 @@ opt.gird_dp.init(0,2,0,new Array("地平坐标"),"");
 opt.gird_eq.init(0,2,0,new Array("赤道坐标"),"");
 opt.gird_ec.init(1,2,0,new Array("黄道"),"");
 opt.fangwei.init(1,2,0,new Array("方位"),"");
-opt.con_line.init(1,2,0,new Array("星座连线"),"");
-opt.con_name.init(1,2,0,new Array("星座名称"),"");
+opt.con_line.init(0,2,0,new Array("星座连线"),"");
+opt.con_name.init(0,2,0,new Array("星座名称"),"");
 opt.planet.init(1,2,0,new Array("行星"),"");
 opt.star_name.init(1,2,0,new Array("星名"),"");
 opt.flag.init(1,2,1,new Array("赤道仪","地平仪"),"change");
@@ -971,12 +1031,12 @@ function touch(){
 		this.X2 = x;this.Y2 = y;
 		this.beginmove=1;
 	}
-	this.clickend = function ()
+	this.clickend = function (flag)
 	{
-
 		if(this.X2==this.X0&&this.Y2==this.Y0)
 		{
-			choosestar(this.X2,this.Y2);
+			if(flag)
+				choosestar(this.X2,this.Y2);
 		}
 		this.beginmove=0;
 	}
@@ -1029,18 +1089,17 @@ function touch(){
 
 begin = function ()
 {
-	z1=cot(page.fov/360*pi)*sqrt(2);
-	z2=cos(page.fov/180*pi)+1;
-	name_x=10,name_y=10+25;
+	timer.timerstart();
 
 	cam.set_from_page(opt.isdirection.value?2:opt.flag.value);
 	page.update_from_cam();
 
-	timer.timerstart();
 	star();
 	timer.timerend();
 	document.getElementById('fps').value = timer.fps;
 }
+
+var dtmin=40;
 
 optiondisplay=1;
 var time=new timenew();
