@@ -1,6 +1,8 @@
 
 
+
 (function (){
+
 
 setcolor = function ()
 {
@@ -30,7 +32,6 @@ setcolor = function ()
 
 var rgb0=new Array(3);
 var rgb1=new Array(3);
-var colordata=new Array(13);
 
 function clear()
 {  
@@ -47,7 +48,7 @@ function logo()
 {
 	cxt.font="15px 宋体";
 	cxt.fillStyle=colordata[9];
-	cxt.fillText("MADE by 北洋星语 Zhu1995zpb",10,page.sizey-10);
+	cxt.fillText("MADE by 北洋星语 Zhu1995zpb",10,cam.sy-10);
 }
 
 drawstar = function (x,y,r,rgb)
@@ -81,41 +82,21 @@ drawstar = function (x,y,r,rgb)
 
 }
 
-starmag2 = function (c)
-{
-	var rr=new Array(2);
-	var r0;
-	var maga,magb;
-	if (c<1){
-		c=(c-1)/2.5+1;
-	}
-	var maga=page.star_size1;
-	magb=Math.pow(0.4,c-page.star_size2);
-	if (magb>1){
-		maga=maga*Math.sqrt(magb);
-		magb=1;
-	}
-	r0=maga*z1/2*page.size/1000*sqrt(page.fov/30);
-	rr[0]=r0;
-	rr[1]=magb;
-	return rr;
-}
-
 function findstar(find_data)
 {
 	star_draw_data.length = 0;
 
 	for(x in find_data)
 	{
-		var j;
+		var j1,j0;
 		n=find_data[x];
-		if (n=="stars")j=10000;
-		if (n=="planets")j=9;
+		if (n=="stars"){j1=10000;j0=0;}
+		if (n=="planets"){j1=8;j0=1}
 
-		for (var i=0;i<j;i++){
-			zb=cam.cal( obj[n][i].chidao , z2-1 , 1);
+		for (var i=j0;i<j1;i++){
+			zb=cam.cal( obj[n][i].chidao , 0 , 1);
 			if ( zb.get )
-				star_draw_data.push(new star_draw(n,i,zb.x,zb.y,starmag2(obj[n][i].mag),obj[n][i].color));
+				star_draw_data.push(new star_draw(n,i,zb.x,zb.y,cam.starmag(obj[n][i].mag),obj[n][i].color));
 		}
 	}
 	for (i=0;i<star_draw_data.length;i++)
@@ -137,7 +118,7 @@ function starname()
 		r = star_draw_data[i].r[0];	
 		mag=obj[n][j].mag;		
 		name=obj[n][j].name;
-		if(mag<(90/(page.fov+5)))
+		if(mag<(90/(cam.fov+5)))
 			cxt.fillText(name,x+r+2,y+r);
 	}
 }
@@ -175,7 +156,7 @@ function drawfangwei()
 	cxt.fillStyle=colordata[8];
 	for (var j=0;j<6;j++){
 		var dy=j>1?10:-15;
-		zb=cam.cal( signs[j].diping , z2-1.1 , 0);
+		zb=cam.cal( signs[j].diping , 0.1 , 0);
 		if ( zb.get )
 			cxt.fillText(signs[j].name,zb.x-15*signs[j].name.length,zb.y-dy);
 	}
@@ -186,7 +167,7 @@ function drawconname()
 	cxt.font="20px 黑体";
 	cxt.fillStyle=colordata[6];
 	for (var j=0;j<88;j++){
-		zb=cam.cal( cons[j].chidao , z2-1.1 , 0);
+		zb=cam.cal( cons[j].chidao , 0.1 , 0);
 		if ( zb.get )
 			cxt.fillText(cons[j].name[2],zb.x-10*cons[j].name[2].length,zb.y+10);
 	}
@@ -199,8 +180,8 @@ function drawline()
 {
 	var dx=0.05;
 	var dy=0.5;
-	var d0=360/(floor(360/(40*2*page.fov/page.size)))/15;
-	var d1=160/(floor(160/(40*2*page.fov/page.size)));
+	var d0=360/(floor(360/(40*2*cam.fov/cam.s0)))/15;
+	var d1=160/(floor(160/(40*2*cam.fov/cam.s0)));
 	if (d0>0.5)d0=0.5;
 	if (d1>10)d1=10;
 
@@ -211,7 +192,7 @@ function drawline()
 
 		cxt.beginPath();
 		cxt.strokeStyle=colordata[0];
-		cxt.lineWidth=starmag2(page.star_size2)[0]/2;
+		cxt.lineWidth=cam.linewidth;
 
 		for (var j=-80;j<90;j+=10)
 		{
@@ -243,7 +224,7 @@ function drawline()
 
 		cxt.beginPath();
 		cxt.strokeStyle=colordata[1];
-		cxt.lineWidth=starmag2(page.star_size2)[0]/2;
+		cxt.lineWidth=cam.linewidth;;
 
 		for (var j=-80;j<90;j+=10)
 		{
@@ -275,16 +256,12 @@ function drawline()
 
 		cxt.beginPath();
 		cxt.strokeStyle=colordata[2];
-		cxt.lineWidth=1;
+		cxt.lineWidth=cam.linewidth;
 
 		be=0;
 		for (var i=-12;i-dx<=12;i+=d0)
 		{
-			var a1=(i*15)/180*pi;
-			var a=atan2( sin(a1)*cos(time.E), cos(a1) );
-			var b=asin ( sin(time.E)*sin(a1) );
-			cd.set(a*12/pi,b*180/pi);
-			drawline1(cd);
+			drawline1(new huangdao(i*15).to_chidao());
 		}//黄道
 		be=0;
 
@@ -296,7 +273,7 @@ function drawline()
 
 		cxt.beginPath();
 		cxt.strokeStyle=colordata[3];
-		cxt.lineWidth=5;
+		cxt.lineWidth=cam.linewidth*6;
 
 		for (var j=0;j<1;j+=1)
 		{
@@ -319,23 +296,22 @@ function drawline()
 
 function drawline2()
 {
-	var r0=starmag2(page.star_size2)[0];
 	var r1,r2;
 	cxt.beginPath();
 	cxt.strokeStyle=colordata[7];
-	cxt.lineWidth=r0;
+	cxt.lineWidth=cam.linewidth*2;
 	for (var j=0;j<line_c.length;j+=2)
 	{
-		zb1=cam.cal( obj.stars[line_c[j]-1].chidao , z2-1.3 , 0);
-		zb2=cam.cal( obj.stars[line_c[j+1]-1].chidao , z2-1.3 , 0);
+		zb1=cam.cal( obj.stars[line_c[j]-1].chidao , 0.3 , 0);
+		zb2=cam.cal( obj.stars[line_c[j+1]-1].chidao , 0.3 , 0);
 		if ( zb1.get && zb2.get )
 		{
 			var x1=zb1.x;
 			var y1=zb1.y;
-			r1=starmag2(obj.stars[line_c[j]-1].mag)[0]+2*r0;
+			r1=cam.starmag(obj.stars[line_c[j]-1].mag)[0]+2*cam.linewidth;;
 			var x2=zb2.x;
 			var y2=zb2.y;
-			r2=starmag2(obj.stars[line_c[j+1]-1].mag)[0]+2*r0;			
+			r2=cam.starmag(obj.stars[line_c[j+1]-1].mag)[0]+2*cam.linewidth;;			
 			var k0=sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
 			if (k0>(r1+r2))
 			{
@@ -353,7 +329,7 @@ function drawline2()
 
 function drawline1(p)
 {
-		zb=cam.cal( p , z2-1.3 , 0);
+		zb=cam.cal( p , 0.3 , 0);
 		if ( zb.get )
 		{
 			if (be==0)
@@ -368,7 +344,7 @@ function drawline1(p)
 
 star = function ()
 {
-
+	name_x=10,name_y=10+25;
 	find_data=new Array();
 	if(opt.planet.value)
 		find_data=new Array("stars","planets");
@@ -379,7 +355,9 @@ star = function ()
 	clear();
 	findstar(find_data);
 	cxt.putImageData(imgData,-size1,-size1);
-	
+	if(opt.planet.value)
+		get();
+
 	if (opt.gird_eq.value||opt.gird_dp.value||opt.gird_ec.value||opt.fangwei.value)
 		drawline();
 
