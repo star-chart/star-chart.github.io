@@ -31,7 +31,8 @@ colordataarray[0]=new Array(
 		"#00FFFF",//8方位
 		"#808080",//9logo
 		"#FFFFFF",//10月亮前景
-		"#000000",//11月亮背景		
+		"#000000",//11月亮背景	
+		"#FFFFFF",//12太阳	
 		""
 		);
 colordataarray[1]=new Array(
@@ -45,8 +46,9 @@ colordataarray[1]=new Array(
 		"#404040",//7星座连线
 		"#00FFFF",//8方位
 		"#808080",//9logo
-		"#FFFF00",//10月亮前景
+		"#FFFF40",//10月亮前景
 		"#000040",//11月亮背景	
+		"#FFFF00",//12太阳
 		""
 		);
 colordataarray[2]=new Array(
@@ -62,6 +64,7 @@ colordataarray[2]=new Array(
 		"#404040",//9logo
 		"#C0D0F0",//10月亮前景
 		"#4060FF",//11月亮背景	
+		"#FFFF00",//12太阳
 		""
 		);
 colordataarray[3]=new Array(
@@ -76,7 +79,8 @@ colordataarray[3]=new Array(
 		"#101010",//8方位
 		"#404040",//9logo
 		"#000000",//10月亮前景
-		"#FFFFFF",//11月亮背景	
+		"#FFFFFF",//11月亮背景
+		"#000000",//12太阳	
 		""
 		);
 
