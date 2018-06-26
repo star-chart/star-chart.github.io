@@ -644,20 +644,24 @@ function camera()
 	}//像面坐标到画布坐标
 	this.starmag = function (c)
 	{
-		var r0;
-		var maga,magb;
-		if (c<1){
-			c=(c-1)/2.5+1;
+		var r;
+		var l;
+		if (c<1.5){
+			c=(c-1.5)/3+1.5;
 		}
-		var maga=this.ss1;
-		magb=Math.pow(0.4,c-this.ss2);
-		if (magb>1){
-			maga=maga*Math.sqrt(magb);
-			magb=1;
+		if (c<-1){
+			c=(c+1)/5-1;
 		}
-		r0=maga*this.z1/2*this.s0/1000*sqrt(this.fov/30);
-		var rr=[r0,magb];
-		return rr;
+		l=Math.pow(0.4,c-this.ss2);
+		if (l>1){
+			r=this.ss1*sqrt(l);
+			l=1;
+		}else
+		{
+			r=this.ss1;
+		}
+		r=r*sqrt(this.z1);
+		return [r,l];
 	}//恒星亮度
 	this.cal = function (a,a1,a2)
 	{
@@ -908,7 +912,12 @@ function page_data()
 	}//更改坐标
 	this.random = function ()
 	{
-		opt.flag.set(0);
+		if( opt.isdirection.value )
+		{
+			live.live();
+		}
+		opt.auto.set(0);
+		opt.flag.set(0); 
 		opt.gird_dp.set(0);
 		opt.gird_eq.set(0);
 		opt.gird_ec.set(0);
@@ -988,6 +997,7 @@ opt.flag=new option();
 opt.lianxu=new option();
 opt.changecolor=new option();
 opt.isdirection=new option();
+opt.auto=new option();
 
 opt.gird_dp.init(0,2,0,new Array("地平坐标"),"");
 opt.gird_eq.init(0,2,0,new Array("赤道坐标"),"");
@@ -1001,7 +1011,7 @@ opt.flag.init(1,2,1,new Array("赤道仪","地平仪"),"change");
 opt.lianxu.init(1,2,1,new Array("时间连续","时间间断"),"changelianxu");
 opt.changecolor.init(0,3,1,new Array("大气","普通","黑白"),"changecolor");
 opt.isdirection.init(0,2,0,new Array("实时方位"),"");
-
+opt.auto.init(1,2,1,new Array("手动选择","自动选择"),"auto");
 
 function disabledMouseWheel() {  
   if (document.addEventListener) {  
@@ -1048,9 +1058,9 @@ function touch(){
 		this.dX=this.dX/page.size*sqrt(2)*page.fov;
 		this.dY=this.dY/page.size*sqrt(2)*page.fov;
 		if (opt.flag.value==1)
-			page.data_change(0,0,-this.dX/cos(page.h/180*pi),this.dY,0);
+			page.data_change(0,0,-this.dX/cos(page.h/200*pi),this.dY,0);
 		if (opt.flag.value==0)
-			page.data_change(this.dX/cos(page.Dec/180*pi),this.dY,0,0,0);
+			page.data_change(this.dX/cos(page.Dec/200*pi),this.dY,0,0,0);
 		begin();
 	}
 	this.click5 = function (dfov)
@@ -1097,6 +1107,7 @@ begin = function ()
 	star();
 	timer.timerend();
 	document.getElementById('fps').value = timer.fps;
+
 }
 
 var dtmin=40;
