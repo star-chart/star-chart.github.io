@@ -6,48 +6,62 @@
 
 <center>
 
-<table>
-<td>
+<table >
+<td >
 <canvas id="myCanvas" width="800" height="800"  >
 Your browser does not support the canvas element.
 </canvas>
 </td>
 </table>
 
-<div  id="option1">
+<div  id="option1" >
 
 <table>
+<br/>
+<input type="button" name="submit" onclick="page.data_change(0,0,0,0,5);begin();" value="-"  style="width: 30%; height: 100px;" /> 
+<input type="button" name="submit" onclick="page.data_change(0,0,0,0,-5);begin();" value="+"  style="width: 30%; height: 100px;" /> 
 
-<input type="submit" name="submit" onclick="timer.now();begin();" value="当前" style="width: 85px; height: 60px;" />
-<input type="submit" name="submit" id="change" onclick="opt.flag.change();" value="地平仪" style="width: 85px; height: 60px;" />
-<input type="submit" name="submit" id="live" onclick="live.live();" value="实时方位" style="width: 85px; height: 60px;" />
-<input type="button" name="submit" onclick="page.random();begin();" value="随机"  style="width: 85px; height: 60px;" /> 
-<input type="submit" name="submit" onclick="opt.gird_dp.change();" value="地平网格" style="width: 85px; height: 60px;" />
-<input type="submit" name="submit" onclick="opt.gird_eq.change();" value="赤道网格" style="width: 85px; height: 60px;" />
+<br/><br/>
+<input type="submit" name="submit" onclick="timer.now();begin();" value="当前" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" id="change" onclick="opt.flag.change();" value="地平仪" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" id="live" onclick="live.live();" value="实时方位" style="width: 14%; height: 5%;" />
+<input type="button" name="submit" onclick="page.random();begin();" value="随机"  style="width: 14%; height: 5%;" /> 
+<input type="submit" name="submit" onclick="opt.gird_dp.change();" value="地平网格" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="opt.gird_eq.change();" value="赤道网格" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" id="auto" onclick="opt.auto.change();" value="自动选择" style="width: 14%; height: 5%;" />
+
+<!--
 —
 <input type="button" name="submit" onclick="touch.move(5);" value="+"  style="width: 85px; height: 60px;" /> 
 <input type="button" name="submit" onclick="touch.move(2);" value="↑"  style="width: 85px; height: 60px;" /> 
 <input type="button" name="submit" onclick="touch.move(6);" value="-"  style="width: 85px; height: 60px;" /> 
+-->
+<br/><br/>
+<input type="submit" name="submit" onclick="opt.con_line.change();" value="星座连线" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="opt.con_name.change();" value="星座名称" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="opt.planet.change();" value="行星" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="opt.star_name.change();" value="星名" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="opt.gird_ec.change();" value="黄道" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="opt.fangwei.change();" value="方位" style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="liveapi=liveapi2;alert(alerttext)" value="手动校准" style="width: 14%; height: 5%;" />
 
-<br/>
-<input type="submit" name="submit" onclick="opt.con_line.change();" value="星座连线" style="width: 85px; height: 60px;" />
-<input type="submit" name="submit" onclick="opt.con_name.change();" value="星座名称" style="width: 85px; height: 60px;" />
-<input type="submit" name="submit" onclick="opt.planet.change();" value="行星" style="width: 85px; height: 60px;" />
-<input type="submit" name="submit" onclick="opt.star_name.change();" value="星名" style="width: 85px; height: 60px;" />
-<input type="submit" name="submit" onclick="opt.gird_ec.change();" value="黄道" style="width: 85px; height: 60px;" />
-<input type="submit" name="submit" onclick="opt.fangwei.change();" value="方位" style="width: 85px; height: 60px;" />
+<!--
 —
 <input type="button" name="submit" onclick="touch.move(1);" value="←"  style="width: 85px; height: 60px;" /> 
 <input type="button" name="submit" onclick="touch.move(4);" value="↓"  style="width: 85px; height: 60px;" /> 
 <input type="button" name="submit" onclick="touch.move(3);" value="→"  style="width: 85px; height: 60px;" />
+-->
+<br/><br/>
 
-<br/>
+颜色模式：<input type="button" name="submit" id="changecolor" onclick="opt.changecolor.change();" value="大气" style="width: 14%; height: 5%;"/>
+-
+<input type="submit" name="submit" onclick="timer.changespeed(-1);" value="<<"   style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="timer.stop();" value="||"   style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" id="changelianxu" onclick="opt.lianxu.change();" value="时间连续"   style="width: 14%; height: 5%;" />
+<input type="submit" name="submit" onclick="timer.changespeed(1);" value=">>"   style="width: 14%; height: 5%;" />
+-
 
--<input type="submit" name="submit" onclick="timer.changespeed(-1);" value="<<"   style="width: 85px; height: 60px;" />
--<input type="submit" name="submit" onclick="timer.stop();" value="||"   style="width: 85px; height: 60px;" />
--<input type="submit" name="submit" onclick="timer.changespeed(1);" value=">>"   style="width: 85px; height: 60px;" />
--<input type="submit" name="submit" id="changelianxu" onclick="opt.lianxu.change();" value="时间连续"   style="width: 85px; height: 60px;" />
-<br/>
+<br/><br/>
 
 <input type="text" name="y" id="year" value=2016 onchange="time.load_from_page();begin();" style="width:40px;" />年 
 <input type="text" name="m" id="month" value=2 onchange="time.load_from_page();begin();"  style="width:20px;" />月 
@@ -78,7 +92,6 @@ time.load_from_page();begin();
 方位:<input type="text" name="s" id="A" value=180 onchange="page.load_from_page();begin();"  style="width:40px;" />
 高度:<input type="text" name="s" id="h" value=30 onchange="page.load_from_page();begin();"  style="width:40px;" />
 视角:<input type="text" name="s" id="fov" value=45 onchange="page.load_from_page();begin();"  style="width:30px;" />
-颜色模式：<input type="button" name="submit" id="changecolor" onclick="opt.changecolor.change();" value="大气"/>（点击更改）
 <br/>
 
 绝对大小:<input type="text" name="s" id="ss1" value=1 onchange="page.load_from_page();begin();" style="width:20px;" />
@@ -91,8 +104,7 @@ Zhu1995zpb 2018 6 20
 </table>
 
 </div>
-<input type="submit" name="submit" onclick="liveapi=liveapi2;alert(alerttext)" value="手动校准" style="width: 85px; height: 60px;" />
-<br>
+
 <input type="button" name="submit" id="option2" onclick="
 if(optiondisplay==0)
 {
@@ -107,6 +119,7 @@ document.getElementById('option2').value='显示所有按钮';
 optiondisplay=0;
 }
 " value="隐藏所有按钮"/> 
+
 
 <script language=javascript src=data.js></script>
 <script language=javascript src=solar.js></script>
