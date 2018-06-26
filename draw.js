@@ -46,35 +46,30 @@ function clear()
 
 function logo()
 {
-	cxt.font="15px 宋体";
+	cxt.font="20px 宋体";
 	cxt.fillStyle=colordata[9];
 	cxt.fillText("MADE by 北洋星语 Zhu1995zpb",10,cam.sy-10);
 }
 
-drawstar = function (x,y,r,rgb)
+var rgb2=new Array(3);
+var rgb000=[1,1,1];
+
+drawstar = function (x,y,r0,rgb)
 {
-	var maga=r[1];
-	var rr=r[0];
+	var maga=r0[1];
+	var r=r0[0];
+	var ll;
+	
+	(opt.changecolor.value==2)?rgb2=rgb000:rgb2=rgb;
 
-	if (opt.changecolor.value==2)
-	{
-		rgb[0]=1;rgb[1]=1;rgb[2]=1;
-	}
-
-	var x1=floor(x-rr);
-	var x2=floor(x+rr)+1;
-	var y1=floor(y-rr);
-	var y2=floor(y+rr)+1;
-	var x0=x2-x1+1;
-	var y0=y2-y1+1;
-	for (var j=x1;j<x1+x0;j++){
-		for (var k=y1;k<y1+y0;k++){
-			var ll=((j-x)*(j-x)+(k-y)*(k-y))/(rr*rr);
+	for (var j=floor(x-r);j<=floor(x+r);j++){
+		for (var k=floor(y-r);k<=floor(y+r);k++){
+			ll=((j-x)*(j-x)+(k-y)*(k-y))/(r*r);
 			if (ll<1){
 				ll=1-ll*ll*ll;
-				imgData.data[4*j+k*size0x*4+0]+=rgb1[0]*rgb[0]*ll*maga;
-				imgData.data[4*j+k*size0x*4+1]+=rgb1[1]*rgb[1]*ll*maga;
-				imgData.data[4*j+k*size0x*4+2]+=rgb1[2]*rgb[2]*ll*maga;
+				imgData.data[4*j+k*size0x*4+0]+=rgb1[0]*rgb2[0]*ll*maga;
+				imgData.data[4*j+k*size0x*4+1]+=rgb1[1]*rgb2[1]*ll*maga;
+				imgData.data[4*j+k*size0x*4+2]+=rgb1[2]*rgb2[2]*ll*maga;
 				imgData.data[4*j+k*size0x*4+3]=255;
 			}
 		}
@@ -84,8 +79,6 @@ drawstar = function (x,y,r,rgb)
 
 function findstar(find_data)
 {
-	star_draw_data.length = 0;
-
 	for(x in find_data)
 	{
 		var j1,j0;
@@ -107,7 +100,7 @@ function findstar(find_data)
 
 function starname()
 {
-	cxt.font="15px 宋体";
+	cxt.font="20px 宋体";
 	cxt.fillStyle=colordata[4];
 	var n,j,x,y,r,mag,name;
 	for (var i=0;i<star_draw_data.length;i++){
@@ -119,13 +112,13 @@ function starname()
 		mag=obj[n][j].mag;		
 		name=obj[n][j].name;
 		if(mag<(90/(cam.fov+5)))
-			cxt.fillText(name,x+r+2,y+r);
+			cxt.fillText(name,x+r+5,y+r+2);
 	}
 }
 
 choosestar = function (x,y)
 {
-	var n,j,x,y,r,mag,name;
+	var n,j,x1,y1,r,mag,name;
 	for (var i=0;i<star_draw_data.length;i++){
 		n = star_draw_data[i].n;
 		j = star_draw_data[i].i;
@@ -133,26 +126,29 @@ choosestar = function (x,y)
 		y1 = star_draw_data[i].y;
 		r = star_draw_data[i].r[0];	
 
-		var r1=5;
-		if (r>r1)
-			r1=r;
-		if (sqrt((x1-x)*(x1-x)+(y1-y)*(y1-y))<r1)
+		if(r>1.5)
+		if (sqrt((x1-x)*(x1-x)+(y1-y)*(y1-y))<r+5)
 		{
-			cxt.font="25px 黑体";
+			cxt.font="35px 黑体";
 			cxt.fillStyle=colordata[5];
 			if(n=="stars")cxt.fillText(obj[n][j].name+"  "+obj[n][j].name_en+"  "+obj[n][j].mag,name_x,name_y);
 			if(n=="planets")cxt.fillText(obj[n][j].name,name_x,name_y);
-			cxt.font="15px 宋体";
+			cxt.font="20px 宋体";
 			cxt.fillStyle=colordata[5];
-			cxt.fillText(obj[n][j].name,x1+r+2,y1+r);
-			name_y+=35;
+			cxt.fillText(obj[n][j].name,x1+r+5,y1+r+2);
+			name_y+=45;
+			cxt.lineWidth=2;//cam.linewidth;
+			cxt.beginPath();
+			cxt.arc(x1,y1,r+5,0,pi*2,1);
+			cxt.closePath();
+			cxt.stroke();
 		}
 	}
 }
 
 function drawfangwei()
 {
-	cxt.font="30px 黑体";
+	cxt.font="35px 黑体";
 	cxt.fillStyle=colordata[8];
 	for (var j=0;j<6;j++){
 		var dy=j>1?10:-15;
@@ -164,7 +160,7 @@ function drawfangwei()
 
 function drawconname()
 {
-	cxt.font="20px 黑体";
+	cxt.font="25px 黑体";
 	cxt.fillStyle=colordata[6];
 	for (var j=0;j<88;j++){
 		zb=cam.cal( cons[j].chidao , 0.1 , 0);
@@ -342,19 +338,36 @@ function drawline1(p)
 		}else{be=0;}
 }
 
+function autochoose()
+{
+	cxt.strokeStyle=colordata[4];
+	cxt.lineWidth=1;
+	cxt.beginPath();
+	cxt.moveTo(cam.sx/2-10,cam.sy/2);
+	cxt.lineTo(cam.sx/2+10,cam.sy/2);
+	cxt.moveTo(cam.sx/2,cam.sy/2-10);
+	cxt.lineTo(cam.sx/2,cam.sy/2+10);
+	cxt.closePath();
+	cxt.stroke();
+	choosestar(cam.sx/2,cam.sy/2);
+}
+
 star = function ()
 {
-	name_x=10,name_y=10+25;
+	name_x=20,name_y=15+35;
 	find_data=new Array();
 	if(opt.planet.value)
 		find_data=new Array("stars","planets");
 	else
 		find_data=new Array("stars");
-	setcolor();
 
+	setcolor();
 	clear();
+	star_draw_data.length = 0;
+
 	findstar(find_data);
 	cxt.putImageData(imgData,-size1,-size1);
+
 	if(opt.planet.value)
 		get();
 
@@ -369,6 +382,9 @@ star = function ()
 		starname();
 	if (opt.fangwei.value)
 		drawfangwei();
+	
+	if(opt.auto.value)
+		autochoose();
 
 	logo();
 }
