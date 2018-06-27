@@ -1107,7 +1107,15 @@ begin = function ()
 	star();
 	timer.timerend();
 	document.getElementById('fps').value = timer.fps;
-
+	var info=
+	//	"赤经"+document.getElementById('RA').value+"<br>"+
+	//	"赤纬"+document.getElementById('Dec').value+"<br>"+
+	//	"方位角"+document.getElementById('A').value+"<br>"+
+	//	"高度角"+document.getElementById('h').value+"<br>"+
+	//	"视角大小"+document.getElementById('fov').value+"<br>"+
+		time.year+"/"+time.month+"/"+time.day+" "+time.hour+":"+time.minute+":"+floor(time.second)
+		;
+	document.getElementById('information').innerHTML=info;
 }
 
 var dtmin=40;
