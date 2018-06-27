@@ -19,6 +19,43 @@ function sgn(x)
 	if(x==0)return 0;
 }
 
+function bv2rgb(bv)
+{
+	if (bv < -0.4) bv = -0.4;
+	if (bv > 2.0) bv = 2.0;
+	if (bv >= -0.40 && bv < 0.00)
+	{
+		t = (bv + 0.40) / (0.00 + 0.40);
+ 		r = 0.61 + 0.11 * t + 0.1 * t * t;
+		g = 0.70 + 0.07 * t + 0.1 * t * t;
+		b = 1.0;
+	}else if (bv >= 0.00 && bv < 0.40){
+		t = (bv - 0.00) / (0.40 - 0.00);
+		r = 0.83 + (0.17 * t);
+		g = 0.87 + (0.11 * t);
+		b = 1.0;
+	}else if (bv >= 0.40 && bv < 1.60){
+		t = (bv - 0.40) / (1.60 - 0.40);
+		r = 1.0;
+		g = 0.98 - 0.16 * t;
+	}else{
+		t = (bv - 1.60) / (2.00 - 1.60);
+		r = 1.0;
+		g = 0.82 - 0.5 * t * t;
+	}
+	if (bv >= 0.40 && bv < 1.50)
+	{
+		t = (bv - 0.40) / (1.50 - 0.40);
+		b = 1.00 - 0.47 * t + 0.1 * t * t;
+	}else if (bv >= 1.50 && bv < 1.951){
+		t = (bv - 1.50) / (1.94 - 1.50);
+		b = 0.63 - 0.6 * t * t;
+	}else{
+		b = 1.0;
+	}
+	return [r,g,b];
+}
+
 var colordata = new Array();
 
 function mat299(a,b)
@@ -438,15 +475,14 @@ for (i=0;i<9;i++)
 for (i=0;i<10000;i++)
 {
 	star1=new star();
-	star1.chidao.set(RD[i*2],RD[i*2+1]);
-	star1.mag=mag[i];
-	star1.name_en=name2[i];
-	star1.name=name1[i];
-	star1.color=new Array (
-			color_data[3*color_star[i]+0],
-			color_data[3*color_star[i]+1],
-			color_data[3*color_star[i]+2]
-				);
+	star1.chidao.set(
+		parseInt(stardata0[i].substr(5,5))/100000*24,
+		90-parseInt(stardata0[i].substr(0,5))/100000*180
+			);
+	star1.mag=(parseInt(stardata0[i].substr(10,3))-200)/100;
+	star1.name_en=starname2[i];
+	star1.name=starname1[i];
+	star1.color=bv2rgb(parseInt(stardata0[i].substr(13,2))*4/100-0.5);
 	obj.stars.push(star1);
 }
 
@@ -1035,6 +1071,9 @@ function touch(){
 	this.Y2=0;
 	this.dX=0;
 	this.dY=0;
+	this.s=0;
+	this.f0=45;
+
 	this.click1 = function (x,y)
 	{
 		this.X0 = x;this.Y0 = y;
@@ -1049,6 +1088,8 @@ function touch(){
 				choosestar(this.X2,this.Y2);
 		}
 		this.beginmove=0;
+		this.s=0;
+		page.update_data();
 	}
 	this.click2 = function (x,y)
 	{
@@ -1075,11 +1116,42 @@ function touch(){
 		if(n==2)this.click2(event.offsetX,event.offsetY);
 		if(n==5)this.click5(event.wheelDelta);
 	}
+	this.click6 = function (x1,y1,x2,y2)
+	{
+		var s1=sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+		if(this.s<20)
+		{
+			this.s=s1;
+			this.f0=page.fov;
+		}
+		else
+		{
+			temp=this.f0*(((this.s/s1)-1)*1+1);
+			if (temp<10)temp=10;
+			if (temp>135)temp=135;
+			page.fov=temp;
+			begin();
+		}
+	}
 	this.touch = function(event,n)
 	{
-		if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
-		if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
-		if(n==4)this.click4(event.touches[0].clientX,event.touches[0].clientY);
+		var point=event.touches;
+	//	if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
+	//	if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
+	//	if(n==4)this.click4(event.touches[0].clientX,event.touches[0].clientY);
+		var np=point.length;
+		if(np==1)
+		{
+//this.click6(point[0].clientX,point[0].clientY,100,100);
+
+			this.s=0;
+			if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
+			if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
+		}
+		if(np==2)
+		{
+			this.click6(point[0].clientX,point[0].clientY,point[1].clientX,point[1].clientY);
+		}
 	}
 	this.move = function (i)
 	{
