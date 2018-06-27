@@ -1135,22 +1135,19 @@ function touch(){
 	}
 	this.touch = function(event,n)
 	{
-		var point=event.touches;
-	//	if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
-	//	if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
-	//	if(n==4)this.click4(event.touches[0].clientX,event.touches[0].clientY);
-		var np=point.length;
-		if(np==1)
-		{
-//this.click6(point[0].clientX,point[0].clientY,100,100);
-
-			this.s=0;
-			if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
-			if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
-		}
-		if(np==2)
-		{
+		if(opt.isdirection.value==0){
+			var point=event.touches;
+			var np=point.length;
+			if(np==1)
+			{
+				this.s=0;
+				if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
+				if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
+			}
+			if(np==2)
+			{
 			this.click6(point[0].clientX,point[0].clientY,point[1].clientX,point[1].clientY);
+			}
 		}
 	}
 	this.move = function (i)
