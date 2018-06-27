@@ -1,6 +1,10 @@
 <html lang="zh">
 <head>
-<meta charset="utf-8" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!--
+<meta charset="utf-8" name="viewport"  content="width=device-width, initial-scale=0.5, minimum-scale=0.5, maximum-scale=0.5, user-scalable=no">
+-->
+<meta charset="utf-8" name="viewport"  content="width=720, user-scalable=no">
+
 </head>
 
 <style type="text/css">
@@ -13,7 +17,7 @@ p {
 	text-align: center;
 	text-decoration: none;
 	display: inline-block;
-	font-size: 30px;
+	font-size: 25px;
 	margin: 2px 2px;
 	cursor: pointer;
 	width:100%;
@@ -42,12 +46,12 @@ p2 {
 	border: 4px;
 	border-radius: 10px;
 	color: black;
-	padding: 20px 5px;
+	padding: 15px 5px;
 	text-align: center;
 	text-decoration: none;
 	display: inline-block;
-	font-size: 30px;
-	margin: 10px 10px;
+	font-size: 25px;
+	margin: 3px 3px;
 	cursor: pointer;
 	width:100%;
 	height:100%;
@@ -65,7 +69,7 @@ p2 {
 	text-align: center;
 	text-decoration: none;
 	display: inline-block;
-	font-size: 30px;
+	font-size: 25px;
 	margin: 2px 2px;
 	cursor: pointer;
 	width:100%;
@@ -87,7 +91,7 @@ Your browser does not support the canvas element.
 </table>
 </div>
 
-<div style="z-index:3 ;position: fixed; right: 200px; top: 0px;">
+<div style="z-index:3 ;position: fixed; right: 160px; top: 10px;">
 <tr><td>
 	<input type="button" class="button" onclick="
 if(aaadisplay==0)
@@ -98,7 +102,7 @@ else
 </td></tr>
 </div>
 
-<div style="z-index:3 ;position: fixed; right: 20px; top: 0px;">
+<div style="z-index:3 ;position: fixed; right: 20px; top: 10px;">
 <tr><td>
 	<input type="button" class="button" onclick="
 if(bbbdisplay==0)
@@ -109,7 +113,7 @@ else
 </td></tr>
 </div>
 
-<div id = 'aaa' style="z-index:3 ;position: fixed; right: 200px; top: 120px; display:none">
+<div id = 'aaa' style="z-index:3 ;position: fixed; right: 160px; top: 80px; display:none">
 <table width="100%" style="right: 0px; top: 0px;">
 <tr><td>
 	<input type="button" class="button" onclick="opt.con_line.change();" value="星座连线"  />
@@ -152,18 +156,23 @@ else
 </table>
 </div>
 
-<div style="z-index:3 ;position: fixed; left: 0px; bottom: 130px;">
+<div style="z-index:3 ;position: fixed; left: 0px; bottom: 100px;">
 <table width="150px" style="right: 0px; top: 0px;">
-<tr><td style="height:150px";>
+<!--
+<tr><td style="height:100px";>
+	<input type="button" class="button" onclick="requestFullScreen('body');" value="全屏" style="width:90%;height:90%;" />
+</td></tr>
+-->
+<tr><td style="height:100px";>
 	<input type="button" class="button" id="change" onclick="opt.flag.change();" value="地平仪" style="width:90%;height:90%;" />
 </td></tr>
-<tr><td style="height:150px";>
+<tr><td style="height:100px";>
 	<input type="button" class="button" id="live" onclick="live.live();" value="实时方位" style="width:90%;height:90%;"/>
 </td></tr>
 </table>
 </div>
 
-<div id="bbb" style="z-index:3 ;position: fixed; right: 20px; top: 120px;display:none " >
+<div id="bbb" style="z-index:3 ;position: fixed; right: 20px; top: 80px;display:none " >
 <table width="100%" style="left: 0px; top: 0px;">
 
 <tr><td>
@@ -192,27 +201,27 @@ else
 </div>
 
 <div  style="z-index:3 ;position: fixed; left: 0px; bottom: 20px;">
-<table width="100%" >
-<tr><td width="20%" height="100px">
+<table width="90%" >
+<tr><td width="20%" height="70px">
 	<input type="button" class="button" onclick="timer.changespeed(-1);" value="<<"  />
 </td>
-<td width="20%" height="100px">
+<td width="20%" height="70px">
 	<input type="button" class="button" onclick="timer.stop();" value="||"   />
 </td>
-<td width="20%" height="100px">
+<td width="20%" height="70px">
 	<input type="button" class="button" onclick="timer.now();begin();" value="当前" />
 </td>
-<td width="20%" height="100px">
+<td width="20%" height="70px">
 	<input type="button" class="button" class="button" id="changelianxu" onclick="opt.lianxu.change();" value="时间连续"   />
 </td>
-<td width="20%" height="100px">
+<td width="20%" height="70px">
 	<input type="button" class="button" onclick="timer.changespeed(1);" value=">>"    />
 </td></tr>
 </table>
 </div>
 
 
-<div id='time' style="z-index:3 ;position: fixed; left: 200px; top: 150px; display:none;">
+<div id='time' style="z-index:3 ;position: fixed; left: 100px; top: 150px; display:none;">
 <table width="100%">
 <tr>
 <td width="20%"><p>年</p></td>
@@ -263,7 +272,7 @@ else
 </table>
 </div>
 
-<div id='location' style="z-index:3 ;position: fixed; left: 200px; top: 300px; display:none;">
+<div id='location' style="z-index:3 ;position: fixed; left: 100px; top: 300px; display:none;">
 <table width="100%" style="left: 0px; top: 0px;">
 <tr>
 <td width="20%"><p>经度</p></td>
@@ -298,7 +307,7 @@ document.getElementById('phy').value='36.85';
 " value="临清"/>
 </div>
 
-<div id='view' style="z-index:3 ;position: fixed; left: 200px; top: 300px; display:none;">
+<div id='view' style="z-index:3 ;position: fixed; left: 50px; top: 300px; display:none;">
 <table width="100%" style="left: 0px; top: 0px;">
 <tr>
 <td width="20%"><p>赤经</p></td>
@@ -368,7 +377,7 @@ document.getElementById('phy').value='36.85';
 </table>
 </div>
 
-<div id='view' style="z-index:4 ;position: fixed; left: 200px; bottom: 120px;">
+<div id='view' style="z-index:4 ;position: fixed; left: 150px; bottom: 100px;">
 <p2 id="information">  </p2>
 </div>
 
@@ -397,11 +406,32 @@ document.getElementById('sizey').value=document.body.clientHeight;
 <script language=javascript >
 aaadisplay=0;
 bbbdisplay=0;
+fs=0;
 begin();
 liveapi1="deviceorientationabsolute";
 liveapi2="deviceorientation";
 liveapi=liveapi1;
 alerttext="请拿起手机，将手机屏幕垂直于水平面，面向正西方（就是摄像头朝向正西），点击实时方位按钮，即可使用";
+ 
+  window.onresize = adjuest;
+    adjuest();
+    function adjuest(){
+      document.getElementById('sizex').value=document.body.clientWidth;
+	document.getElementById('sizey').value=document.body.clientHeight;
+	page.load_from_page();begin();
+    }
+
+function requestFullScreen(element) {
+    var de = document.querySelector(element) || document.documentElement;
+    if (de.requestFullscreen) {
+        de.requestFullscreen();
+    } else if (de.mozRequestFullScreen) {
+        de.mozRequestFullScreen();
+    } else if (de.webkitRequestFullScreen) {
+        de.webkitRequestFullScreen();
+    }
+}
+
 </script>
 
 
