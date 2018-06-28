@@ -1135,19 +1135,23 @@ function touch(){
 	}
 	this.touch = function(event,n)
 	{
-		if(opt.isdirection.value==0){
-			var point=event.touches;
-			var np=point.length;
-			if(np==1)
-			{
-				this.s=0;
-				if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
-				if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
-			}
-			if(np==2)
-			{
-			this.click6(point[0].clientX,point[0].clientY,point[1].clientX,point[1].clientY);
-			}
+		if(opt.isdirection.value==0)
+		{
+		var np=event.touches.length;
+		if(np==1)
+		{
+			this.s=0;
+			if(n==1)this.click1(event.touches[0].clientX,event.touches[0].clientY);
+			if(n==2)this.click2(event.touches[0].clientX,event.touches[0].clientY);
+		}
+		if(np==2)
+		{
+			this.click6(
+			event.touches[0].clientX,
+			event.touches[0].clientY,
+			event.touches[1].clientX,
+			event.touches[1].clientY);
+		}
 		}
 	}
 	this.move = function (i)
@@ -1175,21 +1179,18 @@ begin = function ()
 
 	star();
 	timer.timerend();
-	document.getElementById('fps').value = timer.fps;
-	var info=
-	//	"赤经"+document.getElementById('RA').value+"<br>"+
-	//	"赤纬"+document.getElementById('Dec').value+"<br>"+
-	//	"方位角"+document.getElementById('A').value+"<br>"+
-	//	"高度角"+document.getElementById('h').value+"<br>"+
-	//	"视角大小"+document.getElementById('fov').value+"<br>"+
-		time.year+"/"+time.month+"/"+time.day+" "+time.hour+":"+time.minute+":"+floor(time.second)
-		;
-	document.getElementById('information').innerHTML=info;
+	if(phone==1)
+	{
+		var info=time.year+"/"+time.month+"/"+time.day+" "+time.hour+":"+time.minute+":"+floor(time.second);
+		cxt.font="40px 宋体";
+		cxt.fillStyle=colordata[8];
+		cxt.fillText(info,150,cam.sy-110);
+	}else
+		document.getElementById('fps').value = timer.fps;
 }
 
 var dtmin=40;
 
-optiondisplay=1;
 var time=new timenew();
 var timer = new timer1();
 var touch=new touch();
