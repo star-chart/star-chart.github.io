@@ -145,7 +145,7 @@ else
 </table>
 </div>
 
-<div style="z-index:3 ;position: fixed; right: 0px; bottom: 20px;">
+<div style="z-index:3 ;position: fixed; right: 0px; bottom: 10px;">
 <table width="150px" style="right: 0px; top: 0px;">
 <tr><td style="height:150px";>
 	<input type="button" class="button" onclick="page.data_change(0,0,0,0,-5);begin();" value="+"  style="width:90%;height:90%;"/>
@@ -156,7 +156,7 @@ else
 </table>
 </div>
 
-<div style="z-index:3 ;position: fixed; left: 0px; bottom: 100px;">
+<div style="z-index:3 ;position: fixed; left: 0px; bottom: 90px;">
 <table width="150px" style="right: 0px; top: 0px;">
 <!--
 <tr><td style="height:100px";>
@@ -200,7 +200,7 @@ else
 </table>
 </div>
 
-<div  style="z-index:3 ;position: fixed; left: 0px; bottom: 20px;">
+<div  style="z-index:3 ;position: fixed; left: 0px; bottom: 10px;">
 <table width="90%" >
 <tr><td width="20%" height="70px">
 	<input type="button" class="button" onclick="timer.changespeed(-1);" value="<<"  />
@@ -272,7 +272,7 @@ else
 </table>
 </div>
 
-<div id='location' style="z-index:3 ;position: fixed; left: 100px; top: 300px; display:none;">
+<div id='location' style="z-index:3 ;position: fixed; left: 100px; top: 150px; display:none;">
 <table width="100%" style="left: 0px; top: 0px;">
 <tr>
 <td width="20%"><p>经度</p></td>
@@ -307,7 +307,7 @@ document.getElementById('phy').value='36.85';
 " value="临清"/>
 </div>
 
-<div id='view' style="z-index:3 ;position: fixed; left: 50px; top: 300px; display:none;">
+<div id='view' style="z-index:3 ;position: fixed; left: 50px; top: 150px; display:none;">
 <table width="100%" style="left: 0px; top: 0px;">
 <tr>
 <td width="20%"><p>赤经</p></td>
@@ -351,7 +351,7 @@ document.getElementById('phy').value='36.85';
 </table>
 </div>
 
-<div id='starsize' style="z-index:3 ;position: fixed; left: 200px; top: 300px; display:none;">
+<div id='starsize' style="z-index:3 ;position: fixed; left: 50px; top: 150px; display:none;">
 <table width="100%" style="left: 0px; top: 0px;">
 <tr>
 <td width="30%"><p>绝对大小</p></td>
@@ -407,29 +407,31 @@ document.getElementById('sizey').value=document.body.clientHeight;
 aaadisplay=0;
 bbbdisplay=0;
 fs=0;
+phone=1;
 begin();
 liveapi1="deviceorientationabsolute";
 liveapi2="deviceorientation";
 liveapi=liveapi1;
 alerttext="请拿起手机，将手机屏幕垂直于水平面，面向正西方（就是摄像头朝向正西），点击实时方位按钮，即可使用";
- 
-  window.onresize = adjuest;
-    adjuest();
-    function adjuest(){
-      document.getElementById('sizex').value=document.body.clientWidth;
+window.onresize = adjuest;
+adjuest();
+function adjuest()
+{
+	document.getElementById('sizex').value=document.body.clientWidth;
 	document.getElementById('sizey').value=document.body.clientHeight;
 	page.load_from_page();begin();
-    }
+}
 
-function requestFullScreen(element) {
-    var de = document.querySelector(element) || document.documentElement;
-    if (de.requestFullscreen) {
-        de.requestFullscreen();
-    } else if (de.mozRequestFullScreen) {
-        de.mozRequestFullScreen();
-    } else if (de.webkitRequestFullScreen) {
-        de.webkitRequestFullScreen();
-    }
+function requestFullScreen(element) 
+{
+	var de = document.querySelector(element) || document.documentElement;
+	if (de.requestFullscreen) {
+		de.requestFullscreen();
+	} else if (de.mozRequestFullScreen) {
+		de.mozRequestFullScreen();
+	} else if (de.webkitRequestFullScreen) {
+		de.webkitRequestFullScreen();
+	}
 }
 
 </script>
