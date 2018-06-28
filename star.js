@@ -126,7 +126,7 @@ function R_pos(R,pos)
 	var pos1 = new pos3(
 			R[0]*pos.x + R[1]*pos.y + R[2]*pos.z ,
 			R[3]*pos.x + R[4]*pos.y + R[5]*pos.z ,
-			R[6]*pos.x + R[7]*pos.y + R[8]*pos.z ,
+			R[6]*pos.x + R[7]*pos.y + R[8]*pos.z
 			);
 	return pos1;
 }//旋转矩阵乘向量
