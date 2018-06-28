@@ -48,7 +48,7 @@ function logo()
 {
 	cxt.font="20px 宋体";
 	cxt.fillStyle=colordata[9];
-	cxt.fillText("MADE by 北洋星语 Zhu1995zpb",10,cam.sy-10);
+	cxt.fillText("MADE by 北洋星语 Zhu1995zpb",20,25);
 }
 
 var rgb2=new Array(3);
@@ -341,12 +341,12 @@ function drawline1(p)
 function autochoose()
 {
 	cxt.strokeStyle=colordata[4];
-	cxt.lineWidth=1;
+	cxt.lineWidth=2;
 	cxt.beginPath();
-	cxt.moveTo(cam.sx/2-10,cam.sy/2);
-	cxt.lineTo(cam.sx/2+10,cam.sy/2);
-	cxt.moveTo(cam.sx/2,cam.sy/2-10);
-	cxt.lineTo(cam.sx/2,cam.sy/2+10);
+	cxt.moveTo(cam.sx/2-15,cam.sy/2);
+	cxt.lineTo(cam.sx/2+15,cam.sy/2);
+	cxt.moveTo(cam.sx/2,cam.sy/2-15);
+	cxt.lineTo(cam.sx/2,cam.sy/2+15);
 	cxt.closePath();
 	cxt.stroke();
 	choosestar(cam.sx/2,cam.sy/2);
@@ -354,7 +354,7 @@ function autochoose()
 
 star = function ()
 {
-	name_x=20,name_y=15+35;
+	name_x=20,name_y=65;
 	find_data=new Array();
 	if(opt.planet.value)
 		find_data=new Array("stars","planets");
