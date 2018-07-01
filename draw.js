@@ -323,6 +323,21 @@ function drawline2()
 	cxt.stroke();
 }
 
+function drawmilkyway()
+{
+	for (j=0;j<2;j++){
+		cxt.beginPath();
+		cxt.strokeStyle=colordata[0];
+		cxt.lineWidth=cam.linewidth*1.5;
+		be=0;
+		for (var k=0;k<mwlines[j].length;k+=1)
+		{
+			drawline1(mwlines[j][k]);
+		}
+		cxt.stroke();
+	}
+}
+
 function drawline1(p)
 {
 		zb=cam.cal( p , 0.3 , 0);
@@ -367,6 +382,9 @@ star = function ()
 
 	findstar(find_data);
 	cxt.putImageData(imgData,-size1,-size1);
+
+	if(opt.milkyway.value)
+		drawmilkyway();
 
 	if(opt.planet.value)
 		get();
