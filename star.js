@@ -502,6 +502,8 @@ var cons = new Array();
 
 var signs = new Array();
 
+var mwlines = new Array();
+
 for (var j=0;j<88;j++){
 	var con1=new con();
 	con1.chidao.set(condata[2*j+1],condata[2*j+0]);
@@ -517,6 +519,17 @@ for (var j=0;j<6;j++){
 	sign1.diping.set(fangxiangdata[2*j+0],fangxiangdata[2*j+1]);
 	sign1.name=fangxiangname[j];
 	signs.push( sign1 );
+}
+
+for (var j=0;j<2;j++){
+	var mw1=new Array();
+	for (var k=0;k<mw[j].length;k+=1)
+	{
+		var cd=new chidao();
+		cd.set(mw[j][k][0]/15,mw[j][k][1]);
+		mw1.push(cd);
+	}
+	mwlines.push(mw1);
 }
 
 function camera()
@@ -957,6 +970,7 @@ function page_data()
 		opt.gird_dp.set(0);
 		opt.gird_eq.set(0);
 		opt.gird_ec.set(0);
+		opt.milkyway.set(0);
 		opt.fangwei.set(0);
 		opt.con_line.set(0);
 		opt.con_name.set(0);
@@ -1034,11 +1048,13 @@ opt.lianxu=new option();
 opt.changecolor=new option();
 opt.isdirection=new option();
 opt.auto=new option();
+opt.milkyway=new option();
 
 opt.gird_dp.init(0,2,0,new Array("地平坐标"),"");
 opt.gird_eq.init(0,2,0,new Array("赤道坐标"),"");
 opt.gird_ec.init(1,2,0,new Array("黄道"),"");
 opt.fangwei.init(1,2,0,new Array("方位"),"");
+opt.milkyway.init(1,2,0,new Array("黄道"),"");
 opt.con_line.init(0,2,0,new Array("星座连线"),"");
 opt.con_name.init(0,2,0,new Array("星座名称"),"");
 opt.planet.init(1,2,0,new Array("行星"),"");
