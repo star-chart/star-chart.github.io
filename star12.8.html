@@ -1921,6 +1921,32 @@ document.onkeydown=function(event){
 	var e = event || window.event || arguments.callee.caller.arguments[0];
 	//console.log(e)
 	var key=e && e.keyCode;
+	if(key == 219){ // 隐藏所有 [
+		turnoff("set1");
+		turnoff("set2");
+		turnoff("setdisplay");
+		turnoff("setzoom");
+		turnoff("setmode");
+		turnoff("set");
+		turnoff("settimeline");
+		turnoff("time");
+		turnoff("location");
+		turnoff("view");
+		turnoff("starsize");
+		OPT.info=0;
+		begin();
+	}
+	if(key == 221){ // 取消隐藏 ]
+		turnon("set1");
+		turnon("set2");
+		turnon("setzoom");
+		turnon("setmode");
+		turnon("settimeline");
+		OPT.info=1;
+		begin();
+	}
+	if(is_show("time")||is_show("location")||is_show("view")||is_show("starsize"))
+		key=0;
 	if(key == 32){ // 赤道仪 Space
 		var type=OPT.flag.value?Eq0:Alt;
 		page.pos.set_pos(page.pos.to(type).pos,type);
@@ -2002,30 +2028,7 @@ document.onkeydown=function(event){
 	if(key == 86){ // 自动选择 v
 		OPT.auto.change();
 	}
-	if(key == 219){ // 隐藏所有 [
-		turnoff("set1");
-		turnoff("set2");
-		turnoff("setdisplay");
-		turnoff("setzoom");
-		turnoff("setmode");
-		turnoff("set");
-		turnoff("settimeline");
-		turnoff("time");
-		turnoff("location");
-		turnoff("view");
-		turnoff("starsize");
-		OPT.info=0;
-		begin();
-	}
-	if(key == 221){ // 取消隐藏 ]
-		turnon("set1");
-		turnon("set2");
-		turnon("setzoom");
-		turnon("setmode");
-		turnon("settimeline");
-		OPT.info=1;
-		begin();
-	}
+
 	
 };
 
