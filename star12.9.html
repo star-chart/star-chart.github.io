@@ -112,7 +112,7 @@ input[type=range]::-webkit-slider-thumb {
 	background-color:transparent;
 	opacity:1;
 	border: 0px;
-	color: black;
+	color: red;
 	padding: 2px 5px;
 	text-align: left;
 	text-decoration: none;
@@ -192,17 +192,14 @@ Your browser does not support the canvas element.
 </div>
 
 <!--选中-->
-<div id="set3" style="width:400px; z-index:3 ;position: fixed; left: 150px; bottom: 150px; display:none;">
-<div width="400px">
-	<input id="seted" type="text" class="li" style="font-family:'黑体';font-size:40px;text-align: center;background-color:transparent;"/>
-</div>
+<div id="set3" style="width:400px; z-index:3 ;position: fixed; left: 140px; bottom: 140px; display:none;">
 <table width="100%">
 <tr>
 <td>
-	<input id="seted" type="button" class="button" onclick="seted.go()"  value="前往"/>
+	<input type="button" class="button" onclick="seted.go();"  value="前往"/>
 </td>
 <td>
-	<input id="seted" type="button" class="button" onclick="seted.off()"  value="取消"/>
+	<input type="button" class="button" onclick="seted.off();"  value="取消"/>
 </td>
 </tr>
 </table>
@@ -2049,7 +2046,7 @@ document.onkeydown=function(event){
 		turnon("setmode");
 		turnon("settimeline");
 		if(seted.show)
-		{console.log(2)
+		{
 			turnon("set3");
 		}
 		OPT.info=1;
@@ -2148,6 +2145,68 @@ document.onkeydown=function(event){
 	
 };
 
+get_pname = function(i,mag)
+{
+	if (i==0)
+		return "太阳";
+	else if (i==8)
+		return "月亮";
+	else
+		return OBJ[n][i].name;
+}
+get_info = function(n,i,type)
+{
+	var out;
+	switch (type){
+	case 0:
+	{
+		if (n=="stars")
+			return OBJ[n][i].name;
+		if (n=="planets")
+			return OBJ[n][i].name;
+		if (n=="signs")
+			return OBJ[n][i].name;
+		if (n=="cons")
+			return OBJ[n][i].name[2];
+	}break;
+	case 1:
+	{
+		if (n=="stars")
+			return '恒星：'+OBJ[n][i].name+"   "+OBJ[n][i].name_en+"   "+OBJ[n][i].mag;
+		if (n=="planets")
+			if (OPT.planet.value)
+				return '行星：'+get_pname(i)+"   "+OBJ[n][i].mag;
+			else
+				return '行星：'+get_pname(i);
+		if (n=="signs")
+			return '方位：'+OBJ[n][i].name;
+		if (n=="cons")
+			return '星座：'+OBJ[n][i].name[1]+"   "+OBJ[n][i].name[3]+"   "+OBJ[n][i].name[0];
+	}break;
+	case 2:
+	{
+		if (n=="stars")
+			return OBJ[n][i].name+"  "+OBJ[n][i].name_en+"  "+OBJ[n][i].mag;
+		if (n=="planets")
+			if (i==8||i==0)
+				return get_pname(i);
+			else
+				return get_pname(i)+"  "+OBJ[n][i].mag;
+	}break;
+	case 3:
+	{
+		if (n=="stars")
+			return OBJ[n][i].name+","+OBJ[n][i].name_en;
+		if (n=="planets")
+			return get_pname(i);
+		if (n=="signs")
+			return OBJ[n][i].name;
+		if (n=="cons")
+			return OBJ[n][i].name[1]+","+OBJ[n][i].name[0];
+	}break;
+	}return out;
+}
+
 var lihome=document.createElement("input");
 lihome.className = 'li';
 lihome.type='button';
@@ -2199,7 +2258,7 @@ showlist = function ()
 		li.type='button';
 		li.n=slist[j][0];
 		li.i=slist[j][1];
-		li.value=j+" "+slist[j][2];
+		li.value=j+" "+get_info(li.n,li.i,1);
 		li.onclick=function(){
 			var n=this.n,i=this.i;
 			seted.set(n,i,1);
@@ -2220,16 +2279,16 @@ search = function ()
 		if(OPT.planet.value)
 			for (var i=0;i<9;i++)
 				if (strin.test(OBJ.planets[i].name))
-					slist.push(['planets',i,('行星：'+OBJ.planets[i].name+" | "+OBJ.planets[i].mag)]);
-		for (var i=0;i<9;i++)
-			if (strin.test(OBJ.cons[i].name))
-				slist.push(['cons',i,('星座：'+OBJ.cons[i].name)]);
+					slist.push(['planets',i]);
+		for (var i=0;i<88;i++)
+			if (strin.test(OBJ.cons[i].name[0])||strin.test(OBJ.cons[i].name[1])||strin.test(OBJ.cons[i].name[3]))
+				slist.push(['cons',i]);
 		for (var i=0;i<6;i++)
 			if (strin.test(OBJ.signs[i].name))
-				slist.push(['signs',i,('方位：'+OBJ.signs[i].name)]);
+				slist.push(['signs',i]);
 		for (var i=0;i<10000;i++)
 			if (strin.test(OBJ.stars[i].name)||strin.test(OBJ.stars[i].name_en))
-				slist.push(['stars',i,('恒星：'+OBJ.stars[i].name+" | "+OBJ.stars[i].name_en+" | "+OBJ.stars[i].mag)]);
+				slist.push(['stars',i]);
 		showlist();
 	}
 }
@@ -2244,7 +2303,6 @@ function seted1(){
 		this.n=n;
 		this.i=i;
 		turnon("set3");
-		get("seted").value=OBJ[n][i].name;
 		this.show=1;
 		begin();
 	}
@@ -2279,10 +2337,10 @@ showchoose = function ()
 	{
 		var li=document.createElement("input");
 		li.className = 'li2';
-		li.type='text';
+		li.style="color:"+color.data[5];
 		li.n=chooselist[j][0];
 		li.i=chooselist[j][1];
-		li.value=chooselist[j][2];
+		li.value=get_info(li.n,li.i,2);
 		li.onclick=function(){
 			seted.set(this.n,this.i,1);
 		}
@@ -2304,17 +2362,12 @@ choose_from_xy = function (x,y,clear)
 		if(r>1.5)
 		if (sqrt((x1-x)*(x1-x)+(y1-y)*(y1-y))<r+5)
 		{
-			var text;
-			if(n=="stars")
-				text=OBJ[n][j].name+"  "+OBJ[n][j].name_en+"  "+OBJ[n][j].mag;
-			if(n=="planets")
-				text=OBJ[n][j].name+"  "+OBJ[n][j].mag;
 			var yes=1;
 			for (var k=0;k<chooselist.length;k++)
 				if (n==chooselist[k][0]&&j==chooselist[k][1])
 					yes=0;
 			if (yes)
-				chooselist.push([n,j,text,x1,y1,r]);
+				chooselist.push([n,j,x1,y1,r]);
 		}
 	}
 	showchoose();	
@@ -2569,10 +2622,9 @@ function starname()
 		x = OUT[i].x;
 		y = OUT[i].y;
 		r = OUT[i].r[0];	
-		mag=OBJ[n][j].mag;		
-		name=OBJ[n][j].name;
+		mag=OBJ[n][j].mag;
 		if(mag<(50/(cam.fov+5)))
-			cxt.fillText(name,x+r+5,y+r+2);
+			cxt.fillText(get_info(n,j,0),x+r+5,y+r+2);
 	}
 }
 
@@ -2584,7 +2636,7 @@ function drawfangwei()
 		var dy=j>1?10:-15;
 		var zb=cam.cal( OBJ.signs[j].pos , 1 , 0);
 		if ( zb.get )
-			cxt.fillText(OBJ.signs[j].name,zb.x-15*OBJ.signs[j].name.length,zb.y-dy);
+			cxt.fillText(get_info("signs",j,0),zb.x-15*get_info("signs",j,0).length,zb.y-dy);
 	}
 }
 
@@ -2595,7 +2647,7 @@ function drawconname()
 	for (var j=0;j<88;j++){
 		var zb=cam.cal( OBJ.cons[j].pos , 1 , 0);
 		if ( zb.get )
-			cxt.fillText(OBJ.cons[j].name[2],zb.x-10*OBJ.cons[j].name[2].length,zb.y+10);
+			cxt.fillText(get_info("cons",j,0),zb.x-10*get_info("cons",j,0).length,zb.y+10);
 	}
 }
 
@@ -2606,7 +2658,7 @@ drawchoose = function ()
 		var out=chooselist[i];
 		cxt.lineWidth=2;
 		cxt.beginPath();
-		cxt.arc(out[3],out[4],out[5]+5,0,pi*2,1);
+		cxt.arc(out[2],out[3],out[4]+5,0,pi*2,1);
 		cxt.closePath();
 		cxt.stroke();
 	}
@@ -2628,7 +2680,7 @@ draw_seted = function ()
 			var x=zb.x,y=zb.y,r=cam.starmag(out.mag)[0];
 			cxt.font="30px 黑体";
 			cxt.fillStyle=color.data[5];
-			cxt.fillText(out.name,x+r+12,y+r+4);
+			cxt.fillText(get_info(seted.n,seted.i,3),x+r+12,y+r+4);
 			cxt.lineWidth=4;
 			cxt.beginPath();
 			cxt.arc(x,y,r+10,0,pi*2,1);
@@ -2855,9 +2907,13 @@ draw = function ()
 	if(OPT.info)
 	{
 		var info=time.year+"/"+time.month+"/"+time.day+" "+time.hour+":"+time.minute+":"+floor(time.second);
-		cxt.font="40px 宋体";
-		cxt.fillStyle=color.data[8];
+		cxt.font="40px 黑体";
+		cxt.fillStyle=color.data[5];
 		cxt.fillText(info,150,page.sizey-100);
+		cxt.font="30px 黑体";
+		if (seted.show)
+			cxt.fillText(get_info(seted.n,seted.i,3),170,page.sizey-220);
+
 	}
 
 	//cxt.fillText(floor(timer.dtime*1000)+10000,-18,150);
