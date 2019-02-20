@@ -1888,6 +1888,11 @@ function timer1()
 	}//计时结束
 }
 
+function listenmove()
+{
+	live.rot=[event.alpha/180*pi,event.beta/180*pi,event.gamma/180*pi];
+}
+
 function live1()
 {
 	this.rot=new Array(3);//实时旋转角度，RPY
@@ -1909,12 +1914,12 @@ function live1()
 		if( OPT.isdirection.value )
 		{
 			if (window.DeviceOrientationEvent) 
-				window.addEventListener(liveapi, function(){live.rot=[event.alpha/180*pi,event.beta/180*pi,event.gamma/180*pi];}, false);
+				window.addEventListener(liveapi, listenmove, false);
 			this.timedCount();
 		}
 		else{
 			clearTimeout(directioning);
-			window.removeEventListener(liveapi, function(){live.rot=[event.alpha/180*pi,event.beta/180*pi,event.gamma/180*pi];}, false);
+			window.removeEventListener(liveapi, listenmove, false);
 			begin();
 		}
 	}
@@ -2058,7 +2063,7 @@ function touch()
 	{
 		var e = event || window.event || arguments.callee.caller.arguments[0];
 		var key=e && e.keyCode;
-		if (this.keyenable==0)
+		if (this.keyenable==0||is_show("set0"))
 			key=0;
 
 	if(key == 219){ // 隐藏所有 [
@@ -2919,7 +2924,7 @@ draw = function ()
 	}
 
 	//cxt.fillText(floor(timer.dtime*1000)+10000,-18,150);
-	//console.log(floor(timer.dtime*1000))
+	//console.log(floor(timer.dtime*1000));
 }
 
 })();
