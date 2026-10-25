@@ -114,17 +114,6 @@ html, body {
   font-size: 13px;
 }
 
-#searchBtn {
-  position: fixed;
-  right: 12px;
-  bottom: calc(78px + env(safe-area-inset-bottom, 0px));
-  z-index: 4;
-  min-width: 64px;
-  padding: 12px 14px;
-  border-radius: 999px;
-  font-size: 14px;
-}
-
 #creditMark {
   position: fixed;
   left: 12px;
@@ -143,24 +132,42 @@ html, body {
   position: fixed;
   top: calc(8px + env(safe-area-inset-top, 0px));
   left: 10px;
-  max-width: calc(100vw - 120px);
+  max-width: min(440px, calc(100vw - 120px));
   padding: 8px 12px;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  line-height: 1.35;
+  border-radius: 12px;
+  line-height: 1.4;
   pointer-events: none;
-  backdrop-filter: blur(4px);
 }
 #selText {
   display: none;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 400;
   color: #ffd0d0;
-  margin-bottom: 4px;
+  margin-top: 6px;
+  margin-bottom: 0;
+  line-height: 1.45;
 }
-#clockText { font-size: 14px; font-weight: 600; letter-spacing: 0.3px; }
-#metaText { font-size: 11px; color: #9fd0ff; }
+#selText .sel-name {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #ffd0d0;
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+#selText .sel-extra {
+  font-size: 11px;
+  font-weight: 400;
+  color: #d8a8a8;
+  margin-left: 6px;
+}
+#selText .sel-line { font-size: 11px; line-height: 1.45; }
+#selText .sel-facts { font-size: 12.5px; font-weight: 500; line-height: 1.5; }
+#clockText { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+
+#metaText { font-size: 11px; color: #9fd0ff; white-space: pre-line; line-height: 1.45; }
 #statusText { font-size: 11px; color: #9fb0cc; margin-top: 2px; }
 
 #bottom {
@@ -371,6 +378,8 @@ body.bw #metaText,
 body.bw #statusText,
 body.bw #hud,
 body.bw #topright { color: #000; }
+body.bw #selText .sel-name,
+body.bw #selText .sel-extra { color: #000; }
 body.bw #sheet { background: rgba(255, 255, 255, 0.6); border-top-color: rgba(0, 0, 0, 0.25); }
 body.bw .sheet-title,
 body.bw .sheet-slider span,
@@ -401,13 +410,11 @@ body.bw .about-block a { color: #003a80; }
     <button class="btn icon" data-act="mount">地平仪</button>
   </div>
 
-  <button class="btn icon" id="searchBtn" data-act="search">搜索</button>
-
   <div id="hud">
-    <div id="selText"></div>
     <div id="clockText">--</div>
     <div id="metaText">--</div>
-    <div id="statusText">--</div>
+    <div id="selText"></div>
+    <div id="statusText"></div>
   </div>
 
   <div id="creditMark">看星星的小步步 制作 2026.10</div>
@@ -417,7 +424,8 @@ body.bw .about-block a { color: #003a80; }
     <div id="bar">
       <button class="btn cat" data-cat="display">显示</button>
       <button class="btn cat" data-cat="time">时间</button>
-      <button class="btn cat" data-cat="look">外观</button>
+      <button class="btn" data-act="search">搜索</button>
+      <button class="btn cat" data-cat="look">设置</button>
     </div>
   </div>
 
@@ -878,9 +886,16 @@ function eqdToEnu(ms, obs) {
   return HOR2ENU.multiply(rotToMat3(AE.Rotation_EQD_HOR(new Date(ms), obs)));
 }
 
-// 黄道 -> 地平 ENU（黄道用）
+// 黄道 -> 地平 ENU（J2000 平黄道）
 function eclToEnu(ms, obs) {
   return HOR2ENU.multiply(rotToMat3(AE.Rotation_ECL_HOR(new Date(ms), obs)));
+}
+
+// 当日真黄道 -> 地平 ENU（ECT）
+function ectToEnu(ms, obs) {
+  const date = new Date(ms);
+  const rot = AE.CombineRotation(AE.Rotation_ECT_EQD(date), AE.Rotation_EQD_HOR(date, obs));
+  return HOR2ENU.multiply(rotToMat3(rot));
 }
 
 // 太阳系天体顺序（与 theme.planets 对应）
@@ -902,9 +917,15 @@ function solarBodies(ms, obs) {
     const e = AE.Equator(b, date, obs, false, true);   // 站心、J2000
     const ra = e.ra * 15 * DEG, dec = e.dec * DEG, cd = Math.cos(dec);
     const vec = new Vec3(cd * Math.cos(ra), cd * Math.sin(ra), Math.sin(dec));
-    let mag;
-    try { mag = AE.Illumination(b, date).mag; } catch (err) { mag = 0; }
-    return { key, vec, mag, distAU: e.dist };
+    let mag = 0, phaseAngle = null;
+    try {
+      const ill = AE.Illumination(b, date);
+      mag = ill.mag;
+      phaseAngle = ill.phase_angle;
+    } catch (err) {
+      mag = 0;
+    }
+    return { key, vec, mag, phaseAngle, distAU: e.dist };
   });
 }
 
@@ -2272,7 +2293,7 @@ const sensors = new Sensors();
 // 默认位置：天津
 const observer = { lat: 39.11, lon: 117.17, source: 'default', acc: null };
 
-const state = { showGrid: true, showLabels: true, imu: false, auto: false, mount: 'altaz', selected: null };
+const state = { showGrid: true, showLabels: true, imu: false, auto: false, mount: 'altaz', selected: null, coordMode: 'j2000' };
 const options = {
   stars: true, starNames: true, constLine: true, conNames: true, xingguan: false, xgNames: false,
   milky: true, eqGrid: true, ecliptic: true, planets: true,
@@ -2460,9 +2481,12 @@ window.addEventListener('orientationchange', resize);
 
 /* ---------- 当前帧状态 ---------- */
 let curRHor = eqjToEnu(Date.now(), makeObserver(observer.lat, observer.lon));
+let curEq = curRHor;
+let curEcl = null;
 let curPole = new Vec3(0, 0, 1);
 let curBodies = [];
-const eqView = { ra: 0, dec: 0 };   // 赤道仪模式下的视线（J2000 RA/Dec，度）
+let lastCoordMode = state.coordMode;
+const eqView = { ra: 0, dec: 0 };   // 赤道仪模式下的视线，坐标随 coordMode 切换
 
 function enuOfEqj(x, y, z) {
   const m = curRHor.m;
@@ -2501,7 +2525,7 @@ function selectedDirEnu() {
 function setMount(m) {
   if (m === 'eq' && state.mount !== 'eq') {
     const f = camera.forward();
-    const fEq = curRHor.transpose().apply(new Vec3(f.x, f.y, f.z));
+    const fEq = curEq.transpose().apply(new Vec3(f.x, f.y, f.z));
     eqView.ra = normalizeDeg(Math.atan2(fEq.y, fEq.x) * RAD);
     eqView.dec = clamp(Math.asin(clamp(fEq.z, -1, 1)) * RAD, -89.9, 89.9);
   } else if (m !== 'eq' && state.mount === 'eq') {
@@ -2514,10 +2538,10 @@ function setMount(m) {
 
 function setView(dir) {
   if (state.mount === 'eq') {
-    const fEq = curRHor.transpose().apply(new Vec3(dir.x, dir.y, dir.z));
+    const fEq = curEq.transpose().apply(new Vec3(dir.x, dir.y, dir.z));
     eqView.ra = normalizeDeg(Math.atan2(fEq.y, fEq.x) * RAD);
     eqView.dec = clamp(Math.asin(clamp(fEq.z, -1, 1)) * RAD, -89.9, 89.9);
-    camera.setExplicit(curRHor.apply(eqVector(eqView.ra, eqView.dec)), curPole);
+    camera.setExplicit(curEq.apply(eqVector(eqView.ra, eqView.dec)), curPole);
   } else {
     const alt = Math.asin(clamp(dir.z, -1, 1)) * RAD;
     const az = normalizeDeg(Math.atan2(dir.x, dir.y) * RAD);
@@ -2925,15 +2949,30 @@ function tick(t) {
 
   const ms = clock.simMs;
   const aeObs = makeObserver(observer.lat, observer.lon);
+  const trueCoord = state.coordMode === 'true';
   const R_hor = eqjToEnu(ms, aeObs);
   const R_eqd = eqdToEnu(ms, aeObs);
-  const R_ecl = eclToEnu(ms, aeObs);
+  const R_ecl = trueCoord ? null : eclToEnu(ms, aeObs);
+  const R_ect = trueCoord ? ectToEnu(ms, aeObs) : null;
+  const eqModel = trueCoord ? R_eqd : R_hor;
+  const eclModel = trueCoord ? R_ect : R_ecl;
   curRHor = R_hor;
-  curPole = R_hor.apply(new Vec3(0, 0, 1));
+  curEq = eqModel;
+  curEcl = eclModel;
+
+  // 坐标模式切换时，赤道仪视线要按新坐标重新锚定，避免跳变
+  if (state.mount === 'eq' && lastCoordMode !== state.coordMode) {
+    const f = camera.forward();
+    const fEq = eqModel.transpose().apply(new Vec3(f.x, f.y, f.z));
+    eqView.ra = normalizeDeg(Math.atan2(fEq.y, fEq.x) * RAD);
+    eqView.dec = clamp(Math.asin(clamp(fEq.z, -1, 1)) * RAD, -89.9, 89.9);
+  }
+  lastCoordMode = state.coordMode;
+  curPole = eqModel.apply(new Vec3(0, 0, 1));
 
   // 赤道仪：视线锚定在赤道系 -> 时间推进时星空不动、地平转动
   if (state.mount === 'eq') {
-    camera.setExplicit(curRHor.apply(eqVector(eqView.ra, eqView.dec)), curPole);
+    camera.setExplicit(eqModel.apply(eqVector(eqView.ra, eqView.dec)), curPole);
   }
 
   const sv = sunEqj(ms);
@@ -2975,10 +3014,11 @@ function tick(t) {
   }
   if (state.showLabels || state.showGrid) lines.push({ buffer: renderer.bufHorizon, color: pal.horizon });
   if (options.eqGrid) {
-    lines.push({ buffer: eqGridBuf, color: pal.eqGrid, model: R_eqd });
-    lines.push({ buffer: equatorBuf, color: pal.equator, model: R_eqd });
+    // 同一组网格数值：J2000 模式按 J2000 解释；真值模式按当日赤道解释
+    lines.push({ buffer: eqGridBuf, color: pal.eqGrid, model: eqModel });
+    lines.push({ buffer: equatorBuf, color: pal.equator, model: eqModel });
   }
-  if (options.ecliptic) lines.push({ buffer: eclipticBuf, color: pal.ecliptic, model: R_ecl });
+  if (options.ecliptic) lines.push({ buffer: eclipticBuf, color: pal.ecliptic, model: eclModel });
   if (options.milky) for (const b of mwBufs) lines.push({ buffer: b, color: pal.milky, model: R_hor });
   if (options.constLine) lines.push({ buffer: conBuf, color: pal.conLine, model: R_hor });
   if (options.xingguan) lines.push({ buffer: xgBuf, color: pal.xgLine, model: R_hor });
@@ -3006,62 +3046,111 @@ function frame(t) {
 }
 
 /* ---------- HUD ---------- */
+const fmtDeg = (v, digits = 1) => `${v.toFixed(digits)}°`;
+
+function fmtRA(deg) {
+  const total = Math.round(normalizeDeg(deg) / 15 * 3600) % 86400;
+  const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+  return `${h}h${String(m).padStart(2, '0')}m${String(s).padStart(2, '0')}s`;
+}
+function fmtDec(deg) {
+  const sign = deg < 0 ? '-' : '+';
+  const total = Math.round(Math.abs(deg) * 3600);
+  const d = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+  return `${sign}${d}°${String(m).padStart(2, '0')}′${String(s).padStart(2, '0')}″`;
+}
+function altAzOf(dir) {
+  return {
+    alt: Math.asin(clamp(dir.z, -1, 1)) * RAD,
+    az: normalizeDeg(Math.atan2(dir.x, dir.y) * RAD)
+  };
+}
+function eqCoords(dir) {
+  const v = curEq.transpose().apply(new Vec3(dir.x, dir.y, dir.z));
+  return {
+    ra: normalizeDeg(Math.atan2(v.y, v.x) * RAD),
+    dec: Math.asin(clamp(v.z, -1, 1)) * RAD
+  };
+}
+function localSiderealHours(ms) {
+  let h = siderealHours(ms) + observer.lon / 15;
+  h %= 24;
+  if (h < 0) h += 24;
+  return h;
+}
+function eclipticOf(dir) {
+  if (!curEcl) return null;
+  const v = curEcl.transpose().apply(new Vec3(dir.x, dir.y, dir.z));
+  return {
+    lon: normalizeDeg(Math.atan2(v.y, v.x) * RAD),
+    lat: Math.asin(clamp(v.z, -1, 1)) * RAD
+  };
+}
+
+const escHtml = s => String(s).replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 function selectedInfo() {
   const s = state.selected;
   if (!s) return '';
+  const dir = selectedDirEnu();
+  if (!dir) return '';
+  const { alt, az } = altAzOf(dir);
+  const eq = eqCoords(dir);
+
+  let name = '', extra = '', facts = [], extraFacts = [];
   if (s.type === 'star') {
     const i = s.idx, h = hip[i], nm = names[h];
-    const name = (nm && nm[0]) || ('HIP ' + h);
-    const en = (nm && nm[1]) ? ' ' + nm[1] : '';
-    const dir = selectedDirEnu();
-    let altAz = '';
-    if (dir) { const alt = Math.asin(clamp(dir.z, -1, 1)) * RAD, az = normalizeDeg(Math.atan2(dir.x, dir.y) * RAD); altAz = ` Alt${alt.toFixed(1)}° Az${az.toFixed(0)}°`; }
-    return `★ ${name}${en}  V${mag[i].toFixed(2)}${altAz}`;
+    name = (nm && nm[0]) || `HIP ${h}`;
+    const other = ((nm && nm[1]) || '').replace(/_/g, ' ');
+    extra = [other, `HIP ${h}`].filter(Boolean).join(' · ');
+    facts.push(`星等：${mag[i].toFixed(2)}`);
+    const bv = bvq[i] === BV_NAN ? null : bvq[i] / BV_Q;
+    if (bv !== null) facts.push(`色指数：${bv.toFixed(2)}`);
+  } else if (s.type === 'body') {
+    const b = curBodies[s.idx];
+    name = theme.planets[s.idx].name;
+    facts.push(`星等：${b ? b.mag.toFixed(1) : '—'}`);
+    const ecl = eclipticOf(dir);
+    if (ecl) extraFacts.push(`黄经/黄纬：${fmtDeg(ecl.lon)}/${fmtDeg(ecl.lat)}`);
+    if (b && b.phaseAngle != null && b.key !== 'Sun') extraFacts.push(`相位角：${fmtDeg(b.phaseAngle)}`);
+  } else if (s.type === 'con') {
+    const c = modernCon[s.idx];
+    name = c.zh || c.zhShort || c.abbr;
+    extra = [c.en, c.abbr].filter(Boolean).join(' · ');
+  } else if (s.type === 'xg') {
+    const c = chineseCon[s.idx];
+    name = c.zh || c.abbr;
+    extra = [c.en, c.abbr].filter(Boolean).join(' · ');
   }
-  if (s.type === 'body') {
-    const b = curBodies[s.idx], dir = selectedDirEnu();
-    let altAz = '';
-    if (dir) { const alt = Math.asin(clamp(dir.z, -1, 1)) * RAD, az = normalizeDeg(Math.atan2(dir.x, dir.y) * RAD); altAz = ` Alt${alt.toFixed(1)}° Az${az.toFixed(0)}°`; }
-    return `● ${theme.planets[s.idx].name}  V${b ? b.mag.toFixed(1) : '—'}${altAz}`;
-  }
-  if (s.type === 'con') {
-    const c = modernCon[s.idx], dir = selectedDirEnu();
-    let altAz = '';
-    if (dir) { const alt = Math.asin(clamp(dir.z, -1, 1)) * RAD, az = normalizeDeg(Math.atan2(dir.x, dir.y) * RAD); altAz = ` Alt${alt.toFixed(1)}° Az${az.toFixed(0)}°`; }
-    return `✦ ${c.zh || c.zhShort} ${c.en || ''}${altAz}`;
-  }
-  if (s.type === 'xg') {
-    const c = chineseCon[s.idx], dir = selectedDirEnu();
-    let altAz = '';
-    if (dir) { const alt = Math.asin(clamp(dir.z, -1, 1)) * RAD, az = normalizeDeg(Math.atan2(dir.x, dir.y) * RAD); altAz = ` Alt${alt.toFixed(1)}° Az${az.toFixed(0)}°`; }
-    return `✦ 星官 · ${c.zh || c.abbr}${altAz}`;
-  }
-  return '';
+
+  const out = [
+    `<div class="sel-name">${escHtml(name)}` +
+    (extra ? ` <span class="sel-extra">${escHtml(extra)}</span>` : '') + `</div>`
+  ];
+  const frameName = state.coordMode === 'true' ? '真值' : 'J2000';
+  if (facts.length) out.push(`<div class="sel-facts">${facts.join('  ')}</div>`);
+  out.push(`<div class="sel-line">高度角/方位角：${fmtDeg(alt)}/${fmtDeg(az)}</div>`);
+  out.push(`<div class="sel-line">赤经/赤纬（${frameName}）：${fmtRA(eq.ra)}/${fmtDec(eq.dec)}</div>`);
+  if (extraFacts.length) out.push(`<div class="sel-line">${extraFacts.join('  ')}</div>`);
+  return out.join('');
 }
 
 function updateHud(ms) {
   const info = selectedInfo();
   const selEl = $('selText');
-  selEl.textContent = info;
+  selEl.innerHTML = info;
   selEl.style.display = info ? 'block' : 'none';
 
-  const lst = siderealHours(ms);
-  const sv = sunEqj(ms);
-  const sra = (Math.atan2(sv.y, sv.x) * RAD + 360) % 360;
-  const sdec = Math.asin(clamp(sv.z, -1, 1)) * RAD;
-  const va = camera.toAzAlt();
-  const tState = clock.live ? '实时'
-    : options.timeContinuous ? (clock.playing ? '▶' : '❚❚') + clock.rateShort()
-    : (clock.playing ? '⏭' : '❚❚') + clock.stepText() + '/步';
-  $('clockText').textContent = `${clock.timeText()} ${clock.tzText()}  ${tState}`;
-  $('metaText').textContent = `恒星时${lst.toFixed(2)}h 太阳${sra.toFixed(0)}°/${sdec.toFixed(0)}° 视线${va.az.toFixed(0)}°/${va.alt.toFixed(0)}°`;
+  const [datePart, timePart] = clock.timeText().split(' ');
+  const tz = clock.tzHours;
+  const tzText = `${tz >= 0 ? '+' : ''}${Number.isInteger(tz) ? tz : String(Number(tz.toFixed(2)))}h`;
+  $('clockText').textContent = `${datePart}  ${timePart}  ${tzText}`;
 
-  let att = '';
-  if (state.imu) att = lastOri ? ` 姿态A${lastOri.az.toFixed(0)}° h${lastOri.alt.toFixed(0)}°` : ' 姿态等待';
-  const locSource = observer.source === 'gps'
-    ? ' GPS' + (Number.isFinite(observer.acc) ? `±${observer.acc.toFixed(0)}m` : '')
-    : observer.source === 'manual' ? ' 手动' : ' 默认';
-  $('statusText').textContent = `位置${observer.lat.toFixed(2)},${observer.lon.toFixed(2)}${locSource}${att}`;
+  const sidereal = localSiderealHours(ms);
+  const src = observer.source === 'default' ? '（默认）' : '';
+  $('metaText').textContent = `位置：${observer.lat.toFixed(2)}, ${observer.lon.toFixed(2)}${src}  恒星时：${sidereal.toFixed(2)}h`;
+  $('statusText').textContent = '';
 }
 
 /* ---------- 平移 ---------- */
@@ -3070,7 +3159,7 @@ function handlePan(dx, dy) {
   if (state.mount === 'eq') {
     eqView.ra = normalizeDeg(eqView.ra + dx * k);
     eqView.dec = clamp(eqView.dec + dy * k, -89.9, 89.9);
-    camera.setExplicit(curRHor.apply(eqVector(eqView.ra, eqView.dec)), curPole);
+    camera.setExplicit(curEq.apply(eqVector(eqView.ra, eqView.dec)), curPole);
   } else {
     camera.pan(-dx * k, dy * k);
   }
@@ -3090,8 +3179,7 @@ const MENU = [
       { act: 'ecliptic', label: '黄道' }, { act: 'eqgrid', label: '赤道网格' },
       { act: 'grid', label: '地平网格' }, { act: 'labels', label: '方位标注' },
       { act: 'projection', label: '投影' }, { act: 'reset', label: '重置视角' },
-      { act: 'color', label: '配色' }, { act: 'auto', label: '自动选择' },
-      { act: 'about', label: '关于/来源' }
+      { act: 'color', label: '配色' }, { act: 'auto', label: '自动选择' }
     ]
   },
   {
@@ -3102,9 +3190,11 @@ const MENU = [
     ]
   },
   {
-    cat: 'look', label: '外观', items: [
+    cat: 'look', label: '设置', items: [
       { slider: 'starSize', label: '大小', min: 0.6, max: 1.6, step: 0.1 },
-      { slider: 'starRel', label: '对比', min: 1, max: 6, step: 0.5 }
+      { slider: 'starRel', label: '对比', min: 1, max: 6, step: 0.5 },
+      { act: 'frame', label: '坐标' },
+      { act: 'about', label: '关于/来源' }
     ]
   }
 ];
@@ -3131,6 +3221,7 @@ function isActive(act) {
     case 'continuous': return options.timeContinuous;
     case 'imu': return state.imu;
     case 'mount': return state.mount === 'eq';
+    case 'frame': return state.coordMode === 'true';
     default: return false;
   }
 }
@@ -3145,6 +3236,7 @@ function labelFor(it) {
   }
   if (it.act === 'color') return '配色·' + MODE_NAME[colorMode.mode];
   if (it.act === 'projection') return '投影·' + (camera.projection === 'stereo' ? '球极' : '透视');
+  if (it.act === 'frame') return state.coordMode === 'true' ? '坐标·真值' : '坐标·J2000';
   return it.label;
 }
 const sliderValue = id => ({ starSize: options.starSize, starRel: options.starRel }[id]);
@@ -3249,6 +3341,10 @@ async function handleAction(act) {
     case 'zoomout': camera.addFov(camera.fov * 0.15); camera.clearBasis(); break;
     case 'reset': state.mount = 'altaz'; camera.set(180, 25); camera.fov = 60; camera.clearBasis(); break;
     case 'mount': setMount(state.mount === 'eq' ? 'altaz' : 'eq'); break;
+    case 'frame':
+      state.coordMode = state.coordMode === 'true' ? 'j2000' : 'true';
+      toast('坐标：' + (state.coordMode === 'true' ? '真值' : 'J2000'));
+      break;
     case 'about': openAboutDialog(); break;
     case 'search':
       openSearchDialog(searchFn, it => {
